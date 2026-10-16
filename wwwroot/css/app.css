@@ -19,9 +19,9 @@
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
-    --color-bg: #0c0f0a;
-    --color-text: #edf2e8;
-    --color-accent: #a3d977;
+    --color-bg: #111316;
+    --color-text: #f2eee8;
+    --color-accent: #d39a63;
   }
 }
 @layer base {

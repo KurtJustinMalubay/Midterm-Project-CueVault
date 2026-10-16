@@ -4,72 +4,67 @@
 
 @if (Ui.Feature == "Add product")
 {
-    <div class="fixed inset-0 bg-[#040802]/75 grid place-items-center p-4 z-50"
-         @onclick="Ui.Close">
-        <div class="w-full max-w-[540px] bg-[#121810] border border-[#2a3823] rounded-[14px] p-6 shadow-[0_24px_60px_rgba(0,0,0,.5)]"
-             role="dialog" aria-modal="true"
+    <div class="modal-backdrop" @onclick="Ui.Close">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-label="Add new product"
              @onclick:stopPropagation>
-
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-[1.2rem] font-semibold m-0">Add new product</h2>
-                <button class="text-[#8faa7e] hover:text-[#edf2e8] text-xl leading-none" @onclick="Ui.Close">×</button>
+            <div class="modal-header">
+                <h2>Add new product</h2>
+                <button class="modal-close" @onclick="Ui.Close" aria-label="Close">×</button>
             </div>
 
-            <div class="grid gap-4">
-                <label class="grid gap-1 text-sm font-semibold">
-                    <span>Product name</span>
-                    <input @bind="name" class="@InputCss" placeholder="e.g. Predator Revo Shaft" />
-                </label>
+            <div class="modal-grid">
+                <div class="form-field">
+                    <label>Product name</label>
+                    <input @bind="name" class="modal-input" placeholder="e.g. Predator Revo Shaft" />
+                </div>
 
-                <label class="grid gap-1 text-sm font-semibold">
-                    <span>Description</span>
-                    <textarea @bind="description" rows="2" class="@InputCss resize-y"></textarea>
-                </label>
+                <div class="form-field">
+                    <label>Description</label>
+                    <textarea @bind="description" rows="2" class="modal-input" style="resize:vertical"></textarea>
+                </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <label class="grid gap-1 text-sm font-semibold">
-                        <span>Category</span>
-                        <select @bind="category" class="@InputCss">
+                <div class="modal-row">
+                    <div class="form-field">
+                        <label>Category</label>
+                        <select @bind="category" class="modal-input">
                             <option value="Cues">Cues</option>
                             <option value="Balls">Balls</option>
                             <option value="Accessories">Accessories</option>
                         </select>
-                    </label>
-                    <label class="grid gap-1 text-sm font-semibold">
-                        <span>Condition</span>
-                        <select @bind="condition" class="@InputCss">
+                    </div>
+                    <div class="form-field">
+                        <label>Condition</label>
+                        <select @bind="condition" class="modal-input">
                             <option value="New">New</option>
                             <option value="Used">Used</option>
                         </select>
-                    </label>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <label class="grid gap-1 text-sm font-semibold">
-                        <span>Price ($)</span>
-                        <input type="number" @bind="price" min="0" step="0.01" class="@InputCss" />
-                    </label>
-                    <label class="grid gap-1 text-sm font-semibold">
-                        <span>Stock</span>
-                        <input type="number" @bind="stock" min="0" class="@InputCss" />
-                    </label>
+                <div class="modal-row">
+                    <div class="form-field">
+                        <label>Price ($)</label>
+                        <input type="number" @bind="price" min="0" step="0.01" class="modal-input" />
+                    </div>
+                    <div class="form-field">
+                        <label>Stock</label>
+                        <input type="number" @bind="stock" min="0" class="modal-input" />
+                    </div>
                 </div>
 
-                <label class="grid gap-1 text-sm font-semibold">
-                    <span>Tags <span class="font-normal text-[#8faa7e]">(space-separated)</span></span>
-                    <input @bind="tagsRaw" class="@InputCss" placeholder="cue shaft predator" />
-                </label>
+                <div class="form-field">
+                    <label>Tags <span style="font-weight:400;color:var(--muted)">(space-separated)</span></label>
+                    <input @bind="tagsRaw" class="modal-input" placeholder="cue shaft predator" />
+                </div>
 
                 @if (error is not null)
                 {
-                    <p class="text-[#e07060] text-sm m-0">@error</p>
+                    <p style="color:var(--danger);font-size:13px">@error</p>
                 }
 
-                <div class="flex justify-end gap-3 pt-1">
-                    <button class="px-4 py-2 rounded-[10px] text-sm font-semibold text-[#8faa7e] hover:bg-[#1c2518]"
-                            @onclick="Ui.Close">Cancel</button>
-                    <button class="px-4 py-2 rounded-[10px] text-sm font-semibold bg-[#a3d977] text-[#0d1a05] hover:brightness-[1.08] disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled="@string.IsNullOrWhiteSpace(name)"
+                <div class="modal-footer">
+                    <button class="btn btn-ghost btn-sm" @onclick="Ui.Close">Cancel</button>
+                    <button class="btn btn-primary btn-sm" disabled="@string.IsNullOrWhiteSpace(name)"
                             @onclick="Save">Add product</button>
                 </div>
             </div>
@@ -84,18 +79,12 @@
     int stock;
     string? error;
 
-    const string InputCss = "w-full px-[.85rem] py-[.6rem] bg-[#0c0f0a] border border-[#2a3823] rounded-[10px] text-[#edf2e8] font-normal focus:outline-none focus:border-[#a3d977]";
-
     protected override void OnInitialized() => Ui.Changed += Refresh;
 
     void Refresh()
     {
         if (Ui.Feature == "Add product")
-        {
-            name = description = tagsRaw = "";
-            category = "Cues"; condition = "New";
-            price = 0; stock = 0; error = null;
-        }
+        { name = description = tagsRaw = ""; category = "Cues"; condition = "New"; price = 0; stock = 0; error = null; }
         InvokeAsync(StateHasChanged);
     }
 

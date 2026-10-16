@@ -1,10 +1,36 @@
 @inherits LayoutComponentBase
 
 <div class="auth-shell">
-    <header class="auth-topbar"><a class="brand-lockup" href="/"><span class="brand-mark" aria-hidden="true"><span>8</span></span><span class="brand-name">cuevault<span>.</span><small>THE PLAYER'S SHOP</small></span></a><a class="auth-back-link" href="/">← Back to the shop</a></header>
+    <header class="auth-topbar">
+        <a class="brand-lockup" href="/">
+            <span class="brand-mark" aria-hidden="true">8</span>
+            <span class="brand-name">CueVault<em>.</em></span>
+        </a>
+        <a class="auth-topbar-back" href="/">
+            ← Back to shop
+        </a>
+    </header>
+
     <main class="auth-main">
-        <section class="auth-aside"><span class="eyebrow">GOOD GEAR. BETTER GAMES.</span><h2>Everything for<br />your <em>next runout.</em></h2><p>Player-picked gear, shipped with care. Your table is calling.</p><div class="auth-aside-art" aria-hidden="true"><span class="auth-cue"></span><span class="auth-ball auth-ball-one"><i>8</i></span><span class="auth-ball auth-ball-two">3</span><span class="auth-ball auth-ball-three"></span></div></section>
-        <section class="auth-form-wrap"><div class="auth-form-card">@Body</div></section>
+        <div class="auth-hero">
+              <img src="@StoreImages.PoolBalls"
+                 alt="A group of numbered billiard balls"
+                 loading="lazy" />
+            <div class="auth-hero-content">
+                <span class="label">Good gear. Better games.</span>
+                <h2>Everything for your<br /><em>next runout.</em></h2>
+                <p>Player-picked gear, shipped with care. Your table is calling — join thousands of players who trust CueVault.</p>
+            </div>
+        </div>
+
+        <div class="auth-form-side">
+            <div class="auth-card">
+                @Body
+            </div>
+        </div>
     </main>
-    <footer class="auth-footer"><span>© @DateTime.Now.Year CueVault</span><span>Play your game.</span></footer>
+
+    <footer class="auth-footer-bar">
+        © @DateTime.Now.Year CueVault · Play your game.
+    </footer>
 </div>

@@ -7,57 +7,79 @@
 
 <div class="store-shell">
     <div class="announcement-bar">
-        <span>THE PLAYER'S SHOP</span>
-        <span>Free shipping on orders over $75 <span aria-hidden="true">✦</span> Built for the love of the game</span>
-        <a href="/orders">Track your order</a>
+        <span>🎱 Free shipping on orders over $75</span>
+        <span>Player-picked gear, shipped with care</span>
+        <a href="/orders">Track your order →</a>
     </div>
 
     <header class="store-header">
-        <div class="store-header-main page-container">
+        <div class="page-wrap store-header-inner">
             <a class="brand-lockup" href="/" aria-label="CueVault home">
-                <span class="brand-mark" aria-hidden="true"><span>8</span></span>
-                <span class="brand-name">cuevault<span>.</span><small>THE PLAYER'S SHOP</small></span>
+                <span class="brand-mark" aria-hidden="true">8</span>
+                <span class="brand-name">
+                    CueVault<em>.</em>
+                    <small class="brand-sub">The Player's Shop</small>
+                </span>
             </a>
 
             <form class="store-search" @onsubmit="Search" @onsubmit:preventDefault>
-                <span class="search-icon" aria-hidden="true">⌕</span>
-                <input aria-label="Search the shop" placeholder="Find your next favorite…" @bind="searchQuery" />
-                <button type="submit" aria-label="Search">Search</button>
+                <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" style="color:var(--muted)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input aria-label="Search products" placeholder="Search cues, balls, accessories…" @bind="searchQuery" />
+                <button type="submit">Search</button>
             </form>
 
             <div class="header-actions">
-                <button class="theme-toggle" type="button" aria-label="Switch to @(isDark ? "light" : "dark") mode" aria-pressed="@isDark" title="Switch to @(isDark ? "light" : "dark") mode" @onclick="ToggleTheme">
+                <button class="theme-toggle" type="button" @onclick="ToggleTheme"
+                        aria-label="Toggle theme">
                     @if (isDark)
                     {
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></svg>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+                        <span>Light</span>
                     }
                     else
                     {
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.7 13.2A8.7 8.7 0 0 1 10.8 3.3 8.8 8.8 0 1 0 20.7 13.2Z" /></svg>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.7 13.2A8.7 8.7 0 0 1 10.8 3.3 8.8 8.8 0 1 0 20.7 13.2Z"/></svg>
+                        <span>Dark</span>
                     }
-                    <span>@(isDark ? "Light" : "Dark")</span>
                 </button>
-                <a class="account-action" href="@(Auth.IsAuthenticated ? "/settings" : "/login")">
-                    <span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5" /><path d="M5 21v-1.5a7 7 0 0 1 14 0V21z" /></svg></span>
-                    <span><small>@(Auth.IsAuthenticated ? "WELCOME BACK" : "YOUR ACCOUNT")</small><b>@(Auth.Current?.Username ?? "Sign in")</b></span>
+
+                <a class="header-btn" href="@(Auth.IsAuthenticated ? "/settings" : "/login")">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-1.5a7 7 0 0 1 14 0V21z"/></svg>
+                    <span>
+                        <small>@(Auth.IsAuthenticated ? "Welcome back" : "Account")</small>
+                        <strong>@(Auth.Current?.Username ?? "Sign in")</strong>
+                    </span>
                 </a>
-                <a class="cart-action" href="/cart" aria-label="Shopping bag, @Cart.TotalCount items">
-                    <span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 8h14l1 13H4L5 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg></span>
-                    <span class="cart-count">@Cart.TotalCount</span>
-                    <span><small>YOUR BAG</small><b>$@Cart.Subtotal.ToString("0.00")</b></span>
+
+                <a class="header-btn @(Cart.TotalCount > 0 ? "cart-btn-active" : "")" href="/cart"
+                   aria-label="Cart, @Cart.TotalCount items">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 13H4L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+                    @if (Cart.TotalCount > 0)
+                    {
+                        <span class="cart-badge">@Cart.TotalCount</span>
+                    }
+                    <span>
+                        <small>Your bag</small>
+                        <strong>$@Cart.Subtotal.ToString("0.00")</strong>
+                    </span>
                 </a>
             </div>
         </div>
 
-        <nav class="store-nav" aria-label="Shop navigation">
-            <div class="page-container store-nav-inner">
+        <nav class="store-nav" aria-label="Main navigation">
+            <div class="page-wrap store-nav-inner">
                 <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
                 <NavLink href="/products">Shop all</NavLink>
                 <a href="/products?category=Cues">Cues</a>
-                <a href="/products?category=Balls">Balls &amp; racks</a>
+                <a href="/products?category=Balls">Balls & racks</a>
                 <a href="/products?category=Accessories">Accessories</a>
-                <NavLink href="/reviews">Customer stories</NavLink>
-                <a class="nav-deals" href="/products">Shop the collection <span aria-hidden="true">→</span></a>
+                <NavLink href="/reviews">Reviews</NavLink>
+                <NavLink href="/orders">My orders</NavLink>
+                @if (Auth.IsAuthenticated)
+                {
+                    <NavLink href="/settings">Account</NavLink>
+                }
+                <a class="nav-cta" href="/products">Shop now →</a>
             </div>
         </nav>
     </header>
@@ -67,32 +89,52 @@
     </main>
 
     <footer class="store-footer">
-        <div class="page-container footer-grid">
+        <div class="page-wrap footer-grid">
             <div class="footer-brand">
                 <a class="brand-lockup" href="/">
-                    <span class="brand-mark" aria-hidden="true"><span>8</span></span>
-                    <span class="brand-name">cuevault<span>.</span><small>THE PLAYER'S SHOP</small></span>
+                    <span class="brand-mark" aria-hidden="true">8</span>
+                    <span class="brand-name">CueVault<em>.</em></span>
                 </a>
                 <p>Good gear. Better games.<br />Everything you need for your next runout.</p>
             </div>
-            <div><h3>Explore</h3><a href="/products">Shop all</a><a href="/products?category=Cues">Cues</a><a href="/products?category=Balls">Balls &amp; racks</a><a href="/products?category=Accessories">Accessories</a></div>
-            <div><h3>Here to help</h3><a href="/orders">Track an order</a><a href="/reviews">Customer reviews</a><a href="/settings">My account</a><a href="mailto:hello@cuevault.shop">Contact us</a></div>
-            <div class="footer-note"><span class="footer-kicker">MADE FOR THE MOMENT</span><p>From the first break to the final 8-ball, we've got your table covered.</p><a href="/products">Find your gear <span aria-hidden="true">↗</span></a></div>
+            <div>
+                <h3>Shop</h3>
+                <a href="/products">All products</a>
+                <a href="/products?category=Cues">Cues</a>
+                <a href="/products?category=Balls">Balls & racks</a>
+                <a href="/products?category=Accessories">Accessories</a>
+            </div>
+            <div>
+                <h3>Help</h3>
+                <a href="/orders">Track an order</a>
+                <a href="/reviews">Customer reviews</a>
+                <a href="/settings">My account</a>
+                <a href="mailto:hello@cuevault.shop">Contact us</a>
+            </div>
+            <div class="footer-note">
+                <h3>Made for the moment</h3>
+                <p>From the first break to the final 8-ball, we've got your game covered.</p>
+                <a href="/products">Find your gear →</a>
+            </div>
         </div>
-        <div class="page-container footer-bottom"><span>© @DateTime.Now.Year CueVault. Play your game.</span><span>Secure checkout&nbsp; · &nbsp;Expert-picked gear&nbsp; · &nbsp;Good games guaranteed</span></div>
+        <div class="page-wrap footer-bottom">
+            <span>© @DateTime.Now.Year CueVault · Play your game.</span>
+            <span>Secure checkout · Expert-picked gear · Good games guaranteed</span>
+        </div>
     </footer>
 </div>
 
 @code {
     string searchQuery = "";
-    bool isDark;
+    bool isDark = true;
 
     protected override void OnInitialized() => Cart.Changed += Refresh;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
-        isDark = await JS.InvokeAsync<string>("cueVaultTheme.read") == "dark";
+        var theme = await JS.InvokeAsync<string>("cueVaultTheme.read");
+        isDark = theme != "light";
         StateHasChanged();
     }
 
@@ -104,8 +146,8 @@
 
     void Search()
     {
-        var query = Uri.EscapeDataString(searchQuery.Trim());
-        Nav.NavigateTo(string.IsNullOrEmpty(query) ? "/products" : $"/products?q={query}");
+        var q = Uri.EscapeDataString(searchQuery.Trim());
+        Nav.NavigateTo(string.IsNullOrEmpty(q) ? "/products" : $"/products?q={q}");
     }
 
     void Refresh() => InvokeAsync(StateHasChanged);

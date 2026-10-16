@@ -5,30 +5,86 @@
 
 <PageTitle>Track your order · CueVault</PageTitle>
 
-<div class="page-container track-page">
-    <section class="track-intro"><span class="eyebrow">WE’LL GET YOU BACK TO THE TABLE</span><h1>Track your <em>order.</em></h1><p>Enter the email you used at checkout and we’ll find your recent CueVault orders.</p>
-        <form class="track-search" @onsubmit="FindOrders" @onsubmit:preventDefault><label class="sr-only" for="order-email">Email used at checkout</label><input id="order-email" type="email" required @bind="email" placeholder="you@example.com" /><button class="button button-dark" type="submit">Find my order <span aria-hidden="true">→</span></button></form>
-    </section>
+<div class="page-wrap orders-page">
+    <span class="label">We'll get you back to the table</span>
+    <h1>Track your <em>order.</em></h1>
+    <p>Enter the email you used at checkout and we'll find your recent orders.</p>
+
+    <form class="order-search-form" @onsubmit="FindOrders" @onsubmit:preventDefault>
+        <label class="sr-only" for="order-email">Email used at checkout</label>
+        <input id="order-email" type="email" required @bind="email"
+               placeholder="you@example.com" />
+        <button class="btn btn-primary" type="submit">Find my order</button>
+    </form>
 
     @if (hasSearched)
     {
-        <section class="tracked-orders" aria-live="polite">
+        <div aria-live="polite">
             @if (MatchingOrders.Any())
             {
-                <div class="section-heading"><div><span class="eyebrow">GOOD NEWS, WE FOUND THEM</span><h2>Your CueVault orders</h2></div><span class="order-result-count">@MatchingOrders.Count() order(s)</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+                    <div>
+                        <span class="label">Found them!</span>
+                        <h2 style="font:600 24px/1 var(--serif);margin-top:4px">Your CueVault orders</h2>
+                    </div>
+                    <span style="font-size:13px;color:var(--muted)">@MatchingOrders.Count() order(s)</span>
+                </div>
+
                 @foreach (var order in MatchingOrders)
                 {
-                    <article class="tracked-order-card"><div class="tracked-order-top"><span>ORDER PLACED <b>@order.CreatedAt.ToString("MMM d, yyyy")</b></span><span class="order-status status-@order.Status.ToLowerInvariant()">@order.Status</span></div><div class="tracked-order-product"><div class="cart-item-art @ArtClass(order.ProductId)" aria-hidden="true"><span>✳</span></div><div><b>@order.ProductName</b><small>Quantity: @order.Quantity · Order #@order.Id[..8].ToUpperInvariant()</small></div><strong>$@order.Total.ToString("0.00")</strong></div><div class="order-progress"><span class="progress-step is-done"><i>✓</i> Order placed</span><span class="progress-step @(order.Status is "Shipped" or "Delivered" ? "is-done" : "")"><i>2</i> On its way</span><span class="progress-step @(order.Status == "Delivered" ? "is-done" : "")"><i>3</i> Delivered</span></div></article>
+                    var product = Store.GetAllProducts().FirstOrDefault(p => p.Id == order.ProductId);
+                    <div class="order-card">
+                        <div class="order-card-top">
+                            <span>Placed on <b>@order.CreatedAt.ToString("MMM d, yyyy")</b> · Order #<b>@order.Id[..8].ToUpperInvariant()</b></span>
+                            <span class="order-status status-@order.Status.ToLowerInvariant()">@order.Status</span>
+                        </div>
+                        <div class="order-product">
+                            <div class="order-product-img">
+                                <img src="@StoreImages.ForProduct(product)"
+                                     alt="@order.ProductName" loading="lazy" />
+                            </div>
+                            <div>
+                                <div class="order-product-name">@order.ProductName</div>
+                                <div class="order-product-meta">Qty: @order.Quantity</div>
+                            </div>
+                            <div class="order-product-price">$@order.Total.ToString("0.00")</div>
+                        </div>
+                        <div class="order-progress">
+                            <div class="progress-step done">
+                                <div class="progress-dot">✓</div>
+                                <span>Order placed</span>
+                            </div>
+                            <div class="progress-step @(order.Status is "Shipped" or "Delivered" ? "done" : "")">
+                                <div class="progress-dot">@(order.Status is "Shipped" or "Delivered" ? "✓" : "2")</div>
+                                <span>On its way</span>
+                            </div>
+                            <div class="progress-step @(order.Status == "Delivered" ? "done" : "")">
+                                <div class="progress-dot">@(order.Status == "Delivered" ? "✓" : "3")</div>
+                                <span>Delivered</span>
+                            </div>
+                        </div>
+                    </div>
                 }
             }
             else
             {
-                <div class="order-not-found"><span>⌕</span><h2>No orders found for that email.</h2><p>Double-check the address from checkout, or <a href="mailto:hello@cuevault.shop">get in touch</a> and we’ll help you track it down.</p></div>
+                <div class="order-not-found">
+                    <div class="icon">🔍</div>
+                    <h2>No orders found.</h2>
+                    <p>Double-check the address from checkout, or <a href="mailto:hello@cuevault.shop">get in touch</a> and we'll help you track it down.</p>
+                </div>
             }
-        </section>
+        </div>
     }
 
-    <div class="track-help"><span>✳</span><p><b>Something not quite right?</b><br />Our player support crew is happy to help. <a href="mailto:hello@cuevault.shop">Send us a note →</a></p></div>
+    <div class="order-help">
+        <span class="order-help-icon">💬</span>
+        <div>
+            <strong>Something not right?</strong>
+            Our player support crew is happy to help.
+            <a href="mailto:hello@cuevault.shop">Send us a note →</a>
+        </div>
+    </div>
 </div>
 
 @code {
@@ -36,7 +92,9 @@
     string email = "";
     bool hasSearched;
 
-    IEnumerable<OrderEntry> MatchingOrders => string.IsNullOrWhiteSpace(email) ? [] : Store.GetAllOrders().Where(order => order.CustomerEmail.Equals(email.Trim(), StringComparison.OrdinalIgnoreCase));
+    IEnumerable<OrderEntry> MatchingOrders => string.IsNullOrWhiteSpace(email)
+        ? []
+        : Store.GetAllOrders().Where(o => o.CustomerEmail.Equals(email.Trim(), StringComparison.OrdinalIgnoreCase));
 
     protected override void OnParametersSet()
     {
@@ -44,7 +102,6 @@
     }
 
     void FindOrders() => hasSearched = true;
-    static string ArtClass(string productId) => "art-accessory";
     protected override void OnInitialized() => Store.OnOrderChanged += Refresh;
     void Refresh() => InvokeAsync(StateHasChanged);
     public void Dispose() => Store.OnOrderChanged -= Refresh;

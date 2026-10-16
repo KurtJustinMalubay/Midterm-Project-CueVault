@@ -6,53 +6,109 @@
 
 <PageTitle>Shop all gear · CueVault</PageTitle>
 
-<div class="page-container catalog-page">
-    <div class="catalog-hero"><div><span class="eyebrow">GEAR UP FOR A GOOD GAME</span><h1>Find your <em>next favorite.</em></h1><p>Player-picked essentials for every kind of table and every kind of player.</p></div><div class="catalog-hero-mark" aria-hidden="true"><span>8</span></div></div>
-
-    <div class="catalog-toolbar">
-        <div><span class="catalog-count">@FilteredProducts.Count() ITEMS</span><span class="catalog-context"> curated for your game</span></div>
-        <label class="sort-control">Sort by <select @bind="sortOrder"><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select></label>
+<div class="page-wrap">
+    <div class="catalog-header">
+        <span class="label">Gear up for a good game</span>
+        <h1>Find your <em>next favorite.</em></h1>
+        <p>Player-picked essentials for every kind of table and every kind of player.</p>
     </div>
 
     <div class="catalog-layout">
+        <!-- Sidebar -->
         <aside class="catalog-sidebar">
-            <h2>Shop categories</h2>
+            <div class="sidebar-title">Categories</div>
             <div class="filter-list">
-                @foreach (var category in Categories)
+                @foreach (var cat in Categories)
                 {
-                    <button class="filter-option @(activeCategory == category ? "is-active" : "")" @onclick="() => SetCategory(category)"><span>@category</span><span>@CategoryCount(category)</span></button>
+                    <button class="filter-btn @(activeCategory == cat ? "active" : "")"
+                            @onclick="() => SetCategory(cat)">
+                        <span>@cat</span>
+                        <span class="filter-count">@CategoryCount(cat)</span>
+                    </button>
                 }
             </div>
-            <div class="sidebar-note"><span>✳</span><b>Need a hand?</b><p>Not sure what’s right for your game? We’re players too.</p><a href="mailto:hello@cuevault.shop">Ask us anything →</a></div>
+            <div class="sidebar-help">
+                <span class="label" style="font-size:10px">Need help?</span>
+                <p>Not sure what's right for your game? We're players too.</p>
+                <a href="mailto:hello@cuevault.shop">Ask us anything →</a>
+            </div>
         </aside>
 
-        <section class="catalog-results" aria-label="Products">
-            @if (!string.IsNullOrWhiteSpace(q))
-            {
-                <div class="search-result-note">Showing results for <b>“@q”</b><button @onclick="ClearSearch">Clear search ×</button></div>
-            }
+        <!-- Results -->
+        <section aria-label="Products">
+            <div class="catalog-toolbar">
+                <div class="catalog-count">
+                    <strong>@FilteredProducts.Count()</strong> products
+                    @if (!string.IsNullOrWhiteSpace(q))
+                    {
+                        <span class="search-tag" style="margin-left:12px">
+                            "@q" <button @onclick="ClearSearch" aria-label="Clear search">×</button>
+                        </span>
+                    }
+                </div>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)">
+                    Sort by
+                    <select class="sort-select" @bind="sortOrder">
+                        <option value="featured">Featured</option>
+                        <option value="price-low">Price: low → high</option>
+                        <option value="price-high">Price: high → low</option>
+                    </select>
+                </label>
+            </div>
+
             @if (!FilteredProducts.Any())
             {
-                <div class="empty-state"><span>⌕</span><h2>No gear found just yet.</h2><p>Try a different search or browse everything we have.</p><button class="button button-dark" @onclick="ResetFilters">See all gear</button></div>
+                <div class="empty-state">
+                    <div class="empty-icon">🔍</div>
+                    <h2>No gear found.</h2>
+                    <p>Try a different search or browse everything we carry.</p>
+                    <button class="btn btn-primary" @onclick="ResetFilters">See all gear</button>
+                </div>
             }
             else
             {
-                <div class="product-grid catalog-product-grid">
+                <div class="catalog-product-grid">
                     @foreach (var product in SortedProducts)
                     {
                         <article class="product-card">
-                            <a class="product-art @ArtClass(product)" href="/products" aria-label="View @product.Name">
-                                @if (product.Stock <= 6) { <span class="product-badge badge-limited">ONLY @product.Stock LEFT</span> } else { <span class="product-badge">PLAYER PICK</span> }
-                                <span class="product-art-symbol" aria-hidden="true">@ArtSymbol(product)</span>
-                                <span class="product-art-caption">CUEVAULT · @product.Category.ToUpperInvariant()</span>
-                                <span class="quick-view">Details <b>↗</b></span>
-                            </a>
-                            <div class="product-info">
-                                <span class="product-category">@product.Category.ToUpperInvariant() · @product.Condition.ToUpperInvariant()</span>
+                            <div class="product-img">
+                                <img src="@ProductImg(product)" alt="@product.Name" loading="lazy" />
+                                @if (product.Stock <= 6)
+                                {
+                                    <span class="product-badge badge-low">Only @product.Stock left</span>
+                                }
+                                else if (product.Condition == "New")
+                                {
+                                    <span class="product-badge badge-new">New</span>
+                                }
+                                else
+                                {
+                                    <span class="product-badge badge-pick">Player pick</span>
+                                }
+                                <div class="product-add-overlay">
+                                    <button class="btn btn-primary btn-sm" disabled="@(!CanAdd(product))"
+                                            @onclick="() => AddToCart(product)"
+                                            aria-label="Add @product.Name to bag">
+                                        Add to bag
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-body">
+                                <span class="product-cat">@product.Category · @product.Condition</span>
                                 <a class="product-name" href="/products">@product.Name</a>
-                                <div class="product-rating"><span>★★★★★</span><small>(@Store.GetReviewsFor(product.Id).Count())</small></div>
-                                <p class="product-description">@product.Description</p>
-                                <div class="product-buy-row"><b class="product-price">$@product.Price.ToString("0.00")</b><button class="add-button" disabled="@(!CanAdd(product))" aria-label="Add @product.Name to bag" @onclick="() => AddToCart(product)">+</button></div>
+                                <div class="product-rating">
+                                    <span class="stars">★★★★★</span>
+                                    <small>(@Store.GetReviewsFor(product.Id).Count())</small>
+                                </div>
+                                <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5">
+                                    @product.Description
+                                </p>
+                                <div class="product-footer">
+                                    <span class="product-price">$@product.Price.ToString("0.00")</span>
+                                    <button class="add-btn" disabled="@(!CanAdd(product))"
+                                            aria-label="Add @product.Name to bag"
+                                            @onclick="() => AddToCart(product)">+</button>
+                                </div>
                             </div>
                         </article>
                     }
@@ -70,31 +126,39 @@
     string activeCategory = "All gear";
     string sortOrder = "featured";
 
-    IEnumerable<ProductEntry> FilteredProducts => Store.GetAllProducts().Where(product =>
-        (activeCategory == "All gear" || product.Category.Equals(activeCategory, StringComparison.OrdinalIgnoreCase)) &&
-        (string.IsNullOrWhiteSpace(q) || product.Name.Contains(q, StringComparison.OrdinalIgnoreCase) || product.Description.Contains(q, StringComparison.OrdinalIgnoreCase) || product.Tags.Any(tag => tag.Contains(q, StringComparison.OrdinalIgnoreCase))));
+    string ProductImg(ProductEntry p) => StoreImages.ForProduct(p);
+
+    IEnumerable<ProductEntry> FilteredProducts => Store.GetAllProducts().Where(p =>
+        (activeCategory == "All gear" || p.Category.Equals(activeCategory, StringComparison.OrdinalIgnoreCase)) &&
+        (string.IsNullOrWhiteSpace(q) || p.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+         p.Description.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+         p.Tags.Any(t => t.Contains(q, StringComparison.OrdinalIgnoreCase))));
 
     IEnumerable<ProductEntry> SortedProducts => sortOrder switch
     {
-        "price-low" => FilteredProducts.OrderBy(product => product.Price),
-        "price-high" => FilteredProducts.OrderByDescending(product => product.Price),
-        _ => FilteredProducts.OrderByDescending(product => product.CreatedAt)
+        "price-low" => FilteredProducts.OrderBy(p => p.Price),
+        "price-high" => FilteredProducts.OrderByDescending(p => p.Price),
+        _ => FilteredProducts.OrderByDescending(p => p.CreatedAt)
     };
 
     protected override void OnParametersSet()
     {
-        activeCategory = Categories.FirstOrDefault(item => item.Equals(category, StringComparison.OrdinalIgnoreCase)) ?? "All gear";
+        activeCategory = Categories.FirstOrDefault(c => c.Equals(category, StringComparison.OrdinalIgnoreCase)) ?? "All gear";
     }
 
-    int CategoryCount(string value) => value == "All gear" ? Store.GetAllProducts().Count() : Store.GetAllProducts().Count(product => product.Category.Equals(value, StringComparison.OrdinalIgnoreCase));
-    void SetCategory(string value) { activeCategory = value; category = value == "All gear" ? null : value; Nav.NavigateTo(value == "All gear" ? "/products" : $"/products?category={Uri.EscapeDataString(value)}"); }
+    int CategoryCount(string v) => v == "All gear"
+        ? Store.GetAllProducts().Count()
+        : Store.GetAllProducts().Count(p => p.Category.Equals(v, StringComparison.OrdinalIgnoreCase));
+
+    void SetCategory(string v)
+    {
+        activeCategory = v;
+        Nav.NavigateTo(v == "All gear" ? "/products" : $"/products?category={Uri.EscapeDataString(v)}");
+    }
     void ClearSearch() => Nav.NavigateTo(activeCategory == "All gear" ? "/products" : $"/products?category={Uri.EscapeDataString(activeCategory)}");
     void ResetFilters() { activeCategory = "All gear"; Nav.NavigateTo("/products"); }
-    bool CanAdd(ProductEntry product) => product.Stock > (Cart.Items.FirstOrDefault(item => item.ProductId == product.Id)?.Quantity ?? 0);
-    void AddToCart(ProductEntry product) { if (CanAdd(product)) Cart.Add(product.Id, product.Name, product.Price); }
-    static string ArtClass(ProductEntry product) => product.Category switch { "Cues" => "art-cue", "Balls" => "art-balls", _ => "art-accessory" };
-    static string ArtSymbol(ProductEntry product) => product.Category switch { "Cues" => "╱", "Balls" => "● ● ●", _ => "✳" };
-
+    bool CanAdd(ProductEntry p) => p.Stock > (Cart.Items.FirstOrDefault(i => i.ProductId == p.Id)?.Quantity ?? 0);
+    void AddToCart(ProductEntry p) { if (CanAdd(p)) Cart.Add(p.Id, p.Name, p.Price); }
     protected override void OnInitialized() => Store.OnProductChanged += Refresh;
     void Refresh() => InvokeAsync(StateHasChanged);
     public void Dispose() => Store.OnProductChanged -= Refresh;

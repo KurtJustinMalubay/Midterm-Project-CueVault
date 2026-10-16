@@ -5,34 +5,37 @@
 
 @if (Ui.Feature == "Search")
 {
-    <div class="fixed inset-0 bg-[#040802]/80 backdrop-blur-sm grid place-items-start pt-[10vh] px-4 z-50"
+    <div class="modal-backdrop" style="align-items:flex-start;padding-top:10vh"
          @onclick="Ui.Close">
-        <div class="w-full max-w-[640px] bg-[#121810] border border-[#2a3823] rounded-[14px] shadow-[0_24px_60px_rgba(0,0,0,.6)] overflow-hidden"
-             role="dialog" aria-modal="true"
-             @onclick:stopPropagation>
+        <div style="width:100%;max-width:640px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--shadow-lg)"
+             role="dialog" aria-modal="true" @onclick:stopPropagation>
 
-            <div class="flex items-center px-4 py-3 border-b border-[#2a3823]">
-                <span class="text-[#8faa7e] text-lg mr-3">🔍</span>
+            <div style="display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);gap:12px">
+                <span style="color:var(--muted)">🔍</span>
                 <input @bind="query" @bind:event="oninput" type="text"
-                       class="flex-1 bg-transparent border-none text-[#edf2e8] text-[1.1rem] focus:outline-none focus:ring-0"
+                       style="flex:1;background:none;border:none;outline:none;color:var(--text);font-size:16px;font-family:inherit"
                        placeholder="Search products, categories, tags…"
                        autofocus />
-                <kbd class="font-mono text-[.75rem] p-[.15rem_.45rem] border border-[#2a3823] rounded-[5px] text-[#8faa7e] ml-3 cursor-pointer"
-                     @onclick="Ui.Close">ESC</kbd>
+                <button @onclick="Ui.Close"
+                        style="background:var(--raise);border:1.5px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:var(--r-sm);font-size:12px;font-weight:600">
+                    ESC
+                </button>
             </div>
 
             @if (Results.Any())
             {
-                <ul class="max-h-[60vh] overflow-y-auto p-2">
+                <ul style="max-height:60vh;overflow-y:auto;padding:8px;list-style:none">
                     @foreach (var p in Results)
                     {
                         <li>
-                            <button class="grid grid-cols-[auto_1fr_auto] gap-[.9rem] items-center w-full text-left p-[.7rem_.8rem] rounded-[8px] hover:bg-[#1c2518]"
-                                    @onclick="() => GoToProducts()">
-                                <span class="text-[#a3d977] font-mono text-[.8rem] font-semibold min-w-[5rem]">@p.Category</span>
-                                <span class="grid min-w-0">
-                                    <span class="font-semibold whitespace-nowrap overflow-hidden text-ellipsis text-[#edf2e8]">@p.Name</span>
-                                    <span class="text-[.82rem] text-[#8faa7e]">$@p.Price.ToString("0.00") · Stock: @p.Stock</span>
+                            <button style="display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;width:100%;text-align:left;padding:12px 14px;border-radius:var(--r-md);border:none;background:none;color:var(--text);cursor:pointer;font-family:inherit;transition:background var(--transition)"
+                                    onmouseover="this.style.background='var(--raise)'"
+                                    onmouseout="this.style.background='none'"
+                                    @onclick="GoToProducts">
+                                <span style="color:var(--accent);font-size:11px;font-weight:700;min-width:80px">@p.Category</span>
+                                <span style="display:grid;min-width:0">
+                                    <span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@p.Name</span>
+                                    <span style="font-size:12px;color:var(--muted)">$@p.Price.ToString("0.00") · Stock: @p.Stock</span>
                                 </span>
                             </button>
                         </li>
@@ -41,8 +44,8 @@
             }
             else if (!string.IsNullOrWhiteSpace(query))
             {
-                <div class="p-8 text-center text-[#8faa7e]">
-                    <p>No products found for "@query"</p>
+                <div style="padding:48px;text-align:center;color:var(--muted)">
+                    No products found for "@query"
                 </div>
             }
         </div>
@@ -52,26 +55,14 @@
 @code {
     string query = "";
 
-    IEnumerable<ProductEntry> Results => string.IsNullOrWhiteSpace(query)
-        ? []
-        : Store.GetAllProducts().Where(p =>
+    IEnumerable<ProductEntry> Results => string.IsNullOrWhiteSpace(query) ? [] :
+        Store.GetAllProducts().Where(p =>
             p.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
             p.Category.Contains(query, StringComparison.OrdinalIgnoreCase) ||
             p.Tags.Any(t => t.Contains(query, StringComparison.OrdinalIgnoreCase)));
 
     protected override void OnInitialized() => Ui.Changed += Refresh;
-
-    void Refresh()
-    {
-        if (Ui.Feature == "Search") query = "";
-        InvokeAsync(StateHasChanged);
-    }
-
+    void Refresh() { if (Ui.Feature == "Search") query = ""; InvokeAsync(StateHasChanged); }
     public void Dispose() => Ui.Changed -= Refresh;
-
-    void GoToProducts()
-    {
-        Ui.Close();
-        Nav.NavigateTo("/products");
-    }
+    void GoToProducts() { Ui.Close(); Nav.NavigateTo("/products"); }
 }

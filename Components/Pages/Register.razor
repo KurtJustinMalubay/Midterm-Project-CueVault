@@ -4,75 +4,81 @@
 @inject NavigationManager Nav
 
 <PageTitle>Create account · CueVault</PageTitle>
-<h1 class="text-[1.75rem] leading-[1.2] m-0 mb-[.4rem] tracking-[-.02em]">Create your account</h1>
-<p class="m-0 mb-[1rem] text-[#8faa7e]">Join the CueVault community — good gear and better games await.</p>
 
-<EditForm Model="model" OnValidSubmit="SubmitAsync" FormName="register" class="grid gap-[1.1rem] mt-[1.6rem]">
-    <DataAnnotationsValidator />
+<h1>Create your account</h1>
+<p>Join the CueVault community — good gear and better games await.</p>
 
-    @if (error is not null)
-    {
-        <div class="bg-[#e07060]/10 border border-[#e07060]/40 text-[#f0b0a0] px-[.9rem] py-[.7rem] rounded-[10px] text-[.9rem]" role="alert">
-            @error
+<div class="auth-form">
+    <EditForm Model="model" OnValidSubmit="SubmitAsync" FormName="register">
+        <DataAnnotationsValidator />
+
+        @if (error is not null)
+        {
+            <div class="auth-error" role="alert">@error</div>
+        }
+
+        <div class="input-group">
+            <label for="rusername">Username</label>
+            <InputText id="rusername" @bind-Value="model.Username" autocomplete="username"
+                       placeholder="rack_master" class="auth-input" />
+            <ValidationMessage For="() => model.Username" class="validation-msg" />
         </div>
-    }
 
-    <label class="grid gap-[.4rem] font-semibold text-[.9rem]">
-        <span>Username</span>
-        <InputText @bind-Value="model.Username" autocomplete="username" placeholder="rack_master"
-                   class="@InputCss" />
-        <ValidationMessage For="() => model.Username" class="text-[#e07060] font-normal text-[.82rem]" />
-    </label>
+        <div class="input-group">
+            <label for="remail">Email</label>
+            <InputText id="remail" @bind-Value="model.Email" type="email" autocomplete="email"
+                       placeholder="you@cuevault.shop" class="auth-input" />
+            <ValidationMessage For="() => model.Email" class="validation-msg" />
+        </div>
 
-    <label class="grid gap-[.4rem] font-semibold text-[.9rem]">
-        <span>Email</span>
-        <InputText @bind-Value="model.Email" type="email" autocomplete="email" placeholder="you@cuevault.shop"
-                   class="@InputCss" />
-        <ValidationMessage For="() => model.Email" class="text-[#e07060] font-normal text-[.82rem]" />
-    </label>
+        <div class="input-group">
+            <label for="rpw">Password</label>
+            <div class="input-wrap">
+                <InputText id="rpw" @bind-Value="model.Password"
+                           type="@(showPw ? "text" : "password")"
+                           autocomplete="new-password"
+                           class="auth-input auth-input-pr" />
+                <button type="button" class="reveal-btn" aria-label="@(showPw ? "Hide password" : "Show password")"
+                    aria-pressed="@showPw" @onclick="() => showPw = !showPw">
+                    @(showPw ? "Hide" : "Show")
+                </button>
+            </div>
+            <div class="strength-meter" aria-live="polite" aria-label="Password strength: @StrengthLabel">
+                <div class="strength-bars" aria-hidden="true">
+                    @for (var i = 1; i <= 4; i++)
+                    {
+                        var level = i;
+                        <div class="strength-bar @(level <= Strength ? $"strength-{Strength}" : "")"></div>
+                    }
+                </div>
+                <span class="strength-label">@StrengthLabel</span>
+            </div>
+            <ValidationMessage For="() => model.Password" class="validation-msg" />
+        </div>
 
-    <div class="grid gap-[.4rem] font-semibold text-[.9rem]">
-        <label for="pw">Password</label>
-        <span class="relative block">
-            <InputText id="pw" @bind-Value="model.Password"
-                       type="@(showPw ? "text" : "password")"
-                       autocomplete="new-password"
-                       class="@($"{InputCss} w-full pr-[4.2rem]")" />
-            <button type="button" class="text-[#a3d977] text-[.875rem] hover:underline absolute right-[.8rem] top-1/2 -translate-y-1/2"
-                    @onclick="() => showPw = !showPw">@(showPw ? "Hide" : "Show")</button>
-        </span>
-        @* Password strength bars *@
-        <span class="grid grid-cols-4 gap-[4px]" aria-hidden="true">
-            @for (var i = 1; i <= 4; i++)
-            {
-                var filled = i <= Strength;
-                var color = filled ? Strength switch { 1 => "bg-[#e07060]", 2 => "bg-[#d4a847]", 3 => "bg-[#a3d977]", 4 => "bg-[#a3d977]", _ => "bg-[#2a3823]" } : "bg-[#2a3823]";
-                <i class="h-[4px] rounded-[2px] @color"></i>
-            }
-        </span>
-        <ValidationMessage For="() => model.Password" class="text-[#e07060] font-normal text-[.82rem]" />
-    </div>
+        <div class="input-group">
+            <label for="rcpw">Confirm password</label>
+            <div class="input-wrap">
+                <InputText id="rcpw" @bind-Value="model.Confirm"
+                           type="@(showConfirm ? "text" : "password")"
+                           autocomplete="new-password"
+                           class="auth-input auth-input-pr" />
+                <button type="button" class="reveal-btn" aria-label="@(showConfirm ? "Hide confirmation" : "Show confirmation")"
+                    aria-pressed="@showConfirm" @onclick="() => showConfirm = !showConfirm">
+                    @(showConfirm ? "Hide" : "Show")
+                </button>
+            </div>
+            <ValidationMessage For="() => model.Confirm" class="validation-msg" />
+        </div>
 
-    <div class="grid gap-[.4rem] font-semibold text-[.9rem]">
-        <label for="cpw">Confirm password</label>
-        <span class="relative block">
-            <InputText id="cpw" @bind-Value="model.Confirm"
-                       type="@(showConfirm ? "text" : "password")"
-                       autocomplete="new-password"
-                       class="@($"{InputCss} w-full pr-[4.2rem]")" />
-            <button type="button" class="text-[#a3d977] text-[.875rem] hover:underline absolute right-[.8rem] top-1/2 -translate-y-1/2"
-                    @onclick="() => showConfirm = !showConfirm">@(showConfirm ? "Hide" : "Show")</button>
-        </span>
-        <ValidationMessage For="() => model.Confirm" class="text-[#e07060] font-normal text-[.82rem]" />
-    </div>
+        <button class="btn btn-primary" style="width:100%" disabled="@busy" type="submit">
+            @(busy ? "Creating account…" : "Create account")
+        </button>
+    </EditForm>
+</div>
 
-    <button class="@BtnPrimary w-full" disabled="@busy">
-        @(busy ? "Creating account…" : "Create account")
-    </button>
-</EditForm>
-
-<p class="text-center m-0 mt-[1.5rem] text-[#8faa7e]">
-    Already have an account? <a href="/login" class="text-[#a3d977] no-underline hover:underline">Sign in</a>
+<p class="auth-switch">
+    Already have an account? <a href="/login">Sign in</a>
 </p>
 
 @code {
@@ -82,15 +88,12 @@
         [StringLength(24, MinimumLength = 3, ErrorMessage = "Use 3 to 24 characters.")]
         [RegularExpression("^[A-Za-z0-9_-]+$", ErrorMessage = "Letters, numbers, - and _ only.")]
         public string Username { get; set; } = "";
-
         [Required(ErrorMessage = "Enter your email.")]
         [EmailAddress(ErrorMessage = "That doesn't look like a valid email.")]
         public string Email { get; set; } = "";
-
         [Required(ErrorMessage = "Choose a password.")]
         [MinLength(8, ErrorMessage = "Use at least 8 characters.")]
         public string Password { get; set; } = "";
-
         [Required(ErrorMessage = "Confirm your password.")]
         [Compare(nameof(Password), ErrorMessage = "Passwords don't match.")]
         public string Confirm { get; set; } = "";
@@ -99,9 +102,6 @@
     readonly RegisterModel model = new();
     bool busy, showPw, showConfirm;
     string? error;
-
-    const string InputCss = "w-full px-[.85rem] py-[.7rem] bg-[#121810] border border-[#2a3823] rounded-[10px] text-[#edf2e8] font-normal placeholder-[#4a6a3a] focus:outline-none focus:border-[#a3d977] focus:shadow-[0_0_0_3px_rgba(163,217,119,.18)]";
-    const string BtnPrimary = "inline-flex items-center justify-center gap-[.4rem] px-[1.05rem] py-[.6rem] rounded-[10px] font-semibold bg-[#a3d977] text-[#0d1a05] hover:brightness-[1.08] hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed";
 
     int Strength
     {
@@ -115,10 +115,16 @@
         }
     }
 
-    protected override void OnInitialized()
+    string StrengthLabel => Strength switch
     {
-        if (Auth.IsAuthenticated) Nav.NavigateTo("/");
-    }
+        0 => "Use at least 8 characters",
+        1 => "Weak password",
+        2 => "Fair password",
+        3 => "Good password",
+        _ => "Strong password"
+    };
+
+    protected override void OnInitialized() { if (Auth.IsAuthenticated) Nav.NavigateTo("/"); }
 
     async Task SubmitAsync()
     {

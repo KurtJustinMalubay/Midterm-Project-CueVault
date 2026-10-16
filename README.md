@@ -1,7 +1,6 @@
 # CueVault
 
-**CueVault** is a customer-facing billiards e-commerce storefront built with **Blazor Server** and **Tailwind CSS v4** on **.NET 8**.  
-It mirrors the structure of the DevLogs reference app but is rethemed around a billiards brand — dark green felt palette, cue & ball iconography, and store-focused pages.
+**CueVault** is a customer-facing billiards e-commerce storefront built with **Blazor Server** and **Tailwind CSS v4** on **.NET 8**. The app targets .NET 8 and allows major runtime roll-forward when launched on a newer installed .NET runtime.
 
 > No database is used. All data lives in memory while the app runs and resets on restart.
 
@@ -73,7 +72,7 @@ CueVault/
 
 ## Design
 
-- **Color palette**: dark green (`#0c0f0a`) background, lime accent (`#a3d977`), gold highlights (`#d4a847`), danger red (`#e07060`) — inspired by billiards table felt and cue ball colors.
+- **Color palette**: charcoal surfaces, warm copper accents, soft gold highlights, and restrained teal status colors.
 - **Layout**: left sidebar navigation + sticky top header with search and "Add product" CTA.
 - **Modals**: search, add product, and a generic "under development" modal for features not yet built.
 - **No JavaScript** beyond what Blazor Server injects (`blazor.web.js`).

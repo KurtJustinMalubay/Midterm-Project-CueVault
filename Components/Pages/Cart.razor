@@ -5,51 +5,108 @@
 
 <PageTitle>Your bag · CueVault</PageTitle>
 
-<div class="page-container cart-page">
-    <div class="page-title-row">
-        <div><span class="eyebrow">YOUR NEXT GREAT GAME STARTS HERE</span><h1>Your bag<span class="title-count">(@CartState.TotalCount)</span></h1></div>
-        <a class="text-link" href="/products">← Keep shopping</a>
+<div class="page-wrap cart-page">
+    <div class="cart-page-header">
+        <h1>Your bag <span>(@CartState.TotalCount)</span></h1>
+        <a class="cart-back" href="/products">← Keep shopping</a>
     </div>
 
     @if (CartState.Items.Count == 0)
     {
-        <section class="empty-cart"><div class="empty-cart-art" aria-hidden="true">8</div><span class="eyebrow">NOTHING IN THE POCKETS YET</span><h2>Your bag’s waiting for a good game.</h2><p>Browse the player-picked gear and find something that feels right.</p><a class="button button-dark" href="/products">Explore the shop <span aria-hidden="true">→</span></a></section>
+        <div class="empty-cart">
+            <div class="empty-cart-ball">8</div>
+            <h2>Your bag is empty.</h2>
+            <p>Browse the player-picked gear and find something that feels right for your game.</p>
+            <a class="btn btn-primary btn-lg" href="/products">Explore the shop →</a>
+        </div>
     }
     else
     {
         <div class="cart-layout">
-            <section class="cart-items-panel">
-                <div class="cart-panel-heading"><span>ITEM</span><span>PRICE</span><span>QUANTITY</span><span>TOTAL</span></div>
-                @foreach (var item in CartState.Items)
-                {
-                    var product = Store.GetAllProducts().FirstOrDefault(p => p.Id == item.ProductId);
-                    <article class="cart-item">
-                        <div class="cart-item-main"><div class="cart-item-art @ArtClass(product?.Category)" aria-hidden="true"><span>@ArtSymbol(product?.Category)</span></div><div><span class="product-category">@(product?.Category.ToUpperInvariant() ?? "CUEVAULT GEAR")</span><h2>@item.Name</h2><a href="/products">Keep browsing</a></div></div>
-                        <span class="cart-unit-price">$@item.Price.ToString("0.00")</span>
-                        <div class="quantity-control" aria-label="Quantity for @item.Name"><button aria-label="Decrease quantity" @onclick="() => CartState.UpdateQuantity(item.ProductId, item.Quantity - 1)">−</button><span>@item.Quantity</span><button aria-label="Increase quantity" disabled="@(product is not null && item.Quantity >= product.Stock)" @onclick="() => CartState.UpdateQuantity(item.ProductId, item.Quantity + 1)">+</button></div>
-                        <div class="cart-line-total"><b>$@item.LineTotal.ToString("0.00")</b><button class="remove-link" @onclick="() => CartState.Remove(item.ProductId)">Remove</button></div>
-                    </article>
-                }
-                <div class="cart-shipping-note"><span>✳</span> @(CartState.Shipping == 0 ? "You unlocked free shipping. Nice." : $"You’re ${(75m - CartState.Subtotal):0.00} away from free shipping.")</div>
+            <section>
+                <div class="cart-items">
+                    <div class="cart-head">
+                        <span>Item</span>
+                        <span>Price</span>
+                        <span>Quantity</span>
+                        <span>Total</span>
+                    </div>
+                    @foreach (var item in CartState.Items)
+                    {
+                        var product = Store.GetAllProducts().FirstOrDefault(p => p.Id == item.ProductId);
+                        <div class="cart-item">
+                            <div class="cart-item-info">
+                                <div class="cart-item-img">
+                                    <img src="@StoreImages.ForProduct(product)" alt="@item.Name" loading="lazy" />
+                                </div>
+                                <div class="cart-item-details">
+                                    <div class="cart-item-cat">@(product?.Category ?? "CueVault Gear")</div>
+                                    <div class="cart-item-name">@item.Name</div>
+                                    <button class="cart-remove" @onclick="() => CartState.Remove(item.ProductId)">Remove</button>
+                                </div>
+                            </div>
+                            <div class="cart-price">$@item.Price.ToString("0.00")</div>
+                            <div class="qty-control" aria-label="Quantity for @item.Name">
+                                <button class="qty-btn" aria-label="Decrease"
+                                        @onclick="() => CartState.UpdateQuantity(item.ProductId, item.Quantity - 1)">−</button>
+                                <span class="qty-value">@item.Quantity</span>
+                                <button class="qty-btn" aria-label="Increase"
+                                        disabled="@(product is not null && item.Quantity >= product.Stock)"
+                                        @onclick="() => CartState.UpdateQuantity(item.ProductId, item.Quantity + 1)">+</button>
+                            </div>
+                            <div class="cart-line">$@item.LineTotal.ToString("0.00")</div>
+                        </div>
+                    }
+                    <div class="cart-shipping-info">
+                        🚚
+                        @if (CartState.Shipping == 0)
+                        {
+                            <span>You unlocked free shipping. Nice!</span>
+                        }
+                        else
+                        {
+                            <span>Add <strong>$@((75m - CartState.Subtotal).ToString("0.00"))</strong> more for free shipping.</span>
+                        }
+                    </div>
+                </div>
             </section>
 
             <aside class="order-summary">
-                <span class="eyebrow">THE IMPORTANT DETAILS</span><h2>Order summary</h2>
-                <div class="summary-line"><span>Subtotal</span><b>$@CartState.Subtotal.ToString("0.00")</b></div>
-                <div class="summary-line"><span>Shipping</span><b>@(CartState.Shipping == 0 ? "FREE" : $"${CartState.Shipping:0.00}")</b></div>
-                <div class="summary-total"><span>Estimated total</span><b>$@CartState.Total.ToString("0.00")</b></div>
+                <h2>Order summary</h2>
+                <div class="summary-line">
+                    <span>Subtotal</span>
+                    <b>$@CartState.Subtotal.ToString("0.00")</b>
+                </div>
+                <div class="summary-line">
+                    <span>Shipping</span>
+                    <b>@(CartState.Shipping == 0 ? "FREE" : $"${CartState.Shipping:0.00}")</b>
+                </div>
+                <div class="summary-total">
+                    <span>Total</span>
+                    <b>$@CartState.Total.ToString("0.00")</b>
+                </div>
 
                 <EditForm Model="checkout" OnValidSubmit="PlaceOrder" FormName="checkout" class="checkout-form">
                     <DataAnnotationsValidator />
                     <span class="checkout-label">Where should we send your gear?</span>
-                    <label><span>Name</span><InputText @bind-Value="checkout.Name" autocomplete="name" placeholder="Your name" /></label>
-                    <ValidationMessage For="() => checkout.Name" />
-                    <label><span>Email</span><InputText @bind-Value="checkout.Email" type="email" autocomplete="email" placeholder="you@example.com" /></label>
-                    <ValidationMessage For="() => checkout.Email" />
-                    <button class="button button-dark checkout-button" type="submit">Place my order <span aria-hidden="true">→</span></button>
+                    <div class="form-field">
+                        <label for="cname">Full name</label>
+                        <InputText id="cname" @bind-Value="checkout.Name" autocomplete="name"
+                                   placeholder="Your name" class="form-input" />
+                        <ValidationMessage For="() => checkout.Name" class="validation-msg" />
+                    </div>
+                    <div class="form-field">
+                        <label for="cemail">Email</label>
+                        <InputText id="cemail" @bind-Value="checkout.Email" type="email" autocomplete="email"
+                                   placeholder="you@example.com" class="form-input" />
+                        <ValidationMessage For="() => checkout.Email" class="validation-msg" />
+                    </div>
+                    <button class="btn btn-primary" type="submit" style="width:100%">
+                        Place my order →
+                    </button>
                 </EditForm>
-                <p class="checkout-legal">Demo checkout · No payment will be collected. Your order will be saved for this session.</p>
-                <div class="secure-note"><span>◈</span> Secure, player-friendly checkout</div>
+                <p class="checkout-legal">Demo checkout — no payment will be collected.</p>
+                <div class="secure-note">🔒 Secure, player-friendly checkout</div>
             </aside>
         </div>
     }
@@ -61,7 +118,6 @@
         [Required(ErrorMessage = "Please enter your name.")]
         [StringLength(80, MinimumLength = 2, ErrorMessage = "Please enter your full name.")]
         public string Name { get; set; } = "";
-
         [Required(ErrorMessage = "Please enter your email.")]
         [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
         public string Email { get; set; } = "";
@@ -71,18 +127,16 @@
 
     void PlaceOrder()
     {
-        var customerName = checkout.Name.Trim();
-        var customerEmail = checkout.Email.Trim();
+        var name = checkout.Name.Trim();
+        var email = checkout.Email.Trim();
         foreach (var item in CartState.Items.ToArray())
         {
-            Store.AddOrder(customerName, customerEmail, item.ProductId, item.Name, item.Quantity, item.LineTotal);
+            Store.AddOrder(name, email, item.ProductId, item.Name, item.Quantity, item.LineTotal);
             var product = Store.GetAllProducts().FirstOrDefault(p => p.Id == item.ProductId);
-            if (product is not null) Store.UpdateProductStock(product.Id, Math.Max(0, product.Stock - item.Quantity));
+            if (product is not null)
+                Store.UpdateProductStock(product.Id, Math.Max(0, product.Stock - item.Quantity));
         }
         CartState.Clear();
-        Nav.NavigateTo($"/orders?email={Uri.EscapeDataString(customerEmail)}");
+        Nav.NavigateTo($"/orders?email={Uri.EscapeDataString(email)}");
     }
-
-    static string ArtClass(string? category) => category switch { "Cues" => "art-cue", "Balls" => "art-balls", _ => "art-accessory" };
-    static string ArtSymbol(string? category) => category switch { "Cues" => "╱", "Balls" => "● ● ●", _ => "✳" };
 }

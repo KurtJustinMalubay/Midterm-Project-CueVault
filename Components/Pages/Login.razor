@@ -5,53 +5,54 @@
 @inject UiState Ui
 
 <PageTitle>Sign in · CueVault</PageTitle>
-<h1 class="text-[1.75rem] leading-[1.2] m-0 mb-[.4rem] tracking-[-.02em]">Welcome back</h1>
-<p class="m-0 mb-[1rem] text-[#8faa7e]">Sign in to your CueVault player account.</p>
 
-<EditForm Model="model" OnValidSubmit="SubmitAsync" FormName="login" class="grid gap-[1.1rem] mt-[1.6rem]">
-    <DataAnnotationsValidator />
+<h1>Welcome back</h1>
+<p>Sign in to your CueVault player account.</p>
 
-    @if (error is not null)
-    {
-        <div class="bg-[#e07060]/10 border border-[#e07060]/40 text-[#f0b0a0] px-[.9rem] py-[.7rem] rounded-[10px] text-[.9rem]" role="alert">
-            @error
+<div class="auth-form">
+    <EditForm Model="model" OnValidSubmit="SubmitAsync" FormName="login">
+        <DataAnnotationsValidator />
+
+        @if (error is not null)
+        {
+            <div class="auth-error" role="alert">@error</div>
+        }
+
+        <div class="input-group">
+            <label for="lid">Username or email</label>
+            <InputText id="lid" @bind-Value="model.Id" autocomplete="username"
+                       placeholder="you@cuevault.shop" class="auth-input" />
+            <ValidationMessage For="() => model.Id" class="validation-msg" />
         </div>
-    }
 
-    <label class="grid gap-[.4rem] font-semibold text-[.9rem]">
-        <span>Username or email</span>
-        <InputText @bind-Value="model.Id" autocomplete="username" placeholder="you@cuevault.shop"
-                   class="@InputCss" />
-        <ValidationMessage For="() => model.Id" class="text-[#e07060] font-normal text-[.82rem]" />
-    </label>
-
-    <div class="grid gap-[.4rem] font-semibold text-[.9rem]">
-        <div class="flex justify-between items-baseline">
-            <label for="pw">Password</label>
-            <button type="button" class="text-[#a3d977] text-[.875rem] hover:underline"
-                    @onclick='() => Ui.Show("Password reset")'>Forgot password?</button>
+        <div class="input-group">
+            <div class="input-label-row">
+                <label for="lpw">Password</label>
+                <button type="button" class="forgot-link" @onclick='() => Ui.Show("Password reset")'>
+                    Forgot password?
+                </button>
+            </div>
+            <div class="input-wrap">
+                <InputText id="lpw" @bind-Value="model.Password"
+                           type="@(showPw ? "text" : "password")"
+                           autocomplete="current-password"
+                           class="auth-input auth-input-pr" />
+                <button type="button" class="reveal-btn" aria-label="@(showPw ? "Hide password" : "Show password")"
+                    aria-pressed="@showPw" @onclick="() => showPw = !showPw">
+                    @(showPw ? "Hide" : "Show")
+                </button>
+            </div>
+            <ValidationMessage For="() => model.Password" class="validation-msg" />
         </div>
-        <span class="relative block">
-            <InputText id="pw" @bind-Value="model.Password"
-                       type="@(showPw ? "text" : "password")"
-                       autocomplete="current-password"
-                       class="@($"{InputCss} w-full pr-[4.2rem]")" />
-            <button type="button"
-                    class="text-[#a3d977] text-[.875rem] hover:underline absolute right-[.8rem] top-1/2 -translate-y-1/2"
-                    @onclick="() => showPw = !showPw">
-                @(showPw ? "Hide" : "Show")
-            </button>
-        </span>
-        <ValidationMessage For="() => model.Password" class="text-[#e07060] font-normal text-[.82rem]" />
-    </div>
 
-    <button class="@BtnPrimary w-full" disabled="@busy">
-        @(busy ? "Signing in…" : "Sign in")
-    </button>
-</EditForm>
+        <button class="btn btn-primary" style="width:100%" disabled="@busy" type="submit">
+            @(busy ? "Signing in…" : "Sign in")
+        </button>
+    </EditForm>
+</div>
 
-<p class="text-center m-0 mt-[1.5rem] text-[#8faa7e]">
-    New to CueVault? <a href="/register" class="text-[#a3d977] no-underline hover:underline">Create an account</a>
+<p class="auth-switch">
+    New to CueVault? <a href="/register">Create an account</a>
 </p>
 
 @code {
@@ -59,7 +60,6 @@
     {
         [Required(ErrorMessage = "Enter your username or email.")]
         public string Id { get; set; } = "";
-
         [Required(ErrorMessage = "Enter your password.")]
         public string Password { get; set; } = "";
     }
@@ -68,13 +68,7 @@
     bool busy, showPw;
     string? error;
 
-    const string InputCss = "w-full px-[.85rem] py-[.7rem] bg-[#121810] border border-[#2a3823] rounded-[10px] text-[#edf2e8] font-normal placeholder-[#4a6a3a] focus:outline-none focus:border-[#a3d977] focus:shadow-[0_0_0_3px_rgba(163,217,119,.18)]";
-    const string BtnPrimary = "inline-flex items-center justify-center gap-[.4rem] px-[1.05rem] py-[.6rem] rounded-[10px] font-semibold border border-transparent transition-[filter,background] duration-150 bg-[#a3d977] text-[#0d1a05] hover:brightness-[1.08] hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed";
-
-    protected override void OnInitialized()
-    {
-        if (Auth.IsAuthenticated) Nav.NavigateTo("/");
-    }
+    protected override void OnInitialized() { if (Auth.IsAuthenticated) Nav.NavigateTo("/"); }
 
     async Task SubmitAsync()
     {

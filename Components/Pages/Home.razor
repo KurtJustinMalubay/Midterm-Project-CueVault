@@ -6,92 +6,206 @@
 
 <PageTitle>CueVault — Gear for the love of the game</PageTitle>
 
-<div class="page-container home-page">
-    <section class="hero-panel">
-        <div class="hero-copy">
-            <span class="eyebrow"><span></span> FOR THE LOVE OF THE GAME</span>
-            <h1>Make every<br />shot <em>count.</em></h1>
-            <p>Thoughtfully picked cues, table essentials and little upgrades that make a big difference at the table.</p>
-            <div class="hero-buttons">
-                <a class="button button-dark" href="/products">Shop the collection <span aria-hidden="true">↗</span></a>
-                <a class="text-link" href="/reviews">Why players choose us <span aria-hidden="true">→</span></a>
+<div class="home-page">
+
+    <!-- Hero -->
+    <div class="page-wrap">
+        <section class="hero" style="margin-top: 32px;">
+            <div class="hero-copy">
+                <span class="label">For the love of the game</span>
+                <h1>Make every<br />shot <em>count.</em></h1>
+                <p>Thoughtfully picked cues, table essentials and upgrades that make a real difference at the table.</p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary btn-lg" href="/products">Shop the collection</a>
+                    <a class="btn btn-outline" href="/reviews">Player reviews</a>
+                </div>
+                <div class="hero-proof">
+                    <span class="proof-stars">★★★★★</span>
+                    <strong>4.8/5</strong>
+                    <span>from players like you</span>
+                </div>
             </div>
-            <div class="hero-proof"><span class="proof-stars">★★★★★</span><b>4.8/5</b><span>from players like you</span></div>
-        </div>
-        <div class="hero-art" aria-label="Pool balls set on a green felt table" role="img">
-            <div class="hero-art-ring"></div>
-            <div class="hero-table-line"></div>
-            <div class="hero-ball hero-ball-eight"><span>8</span></div>
-            <div class="hero-ball hero-ball-gold"><span>3</span></div>
-            <div class="hero-ball hero-ball-white"><span></span></div>
-            <div class="hero-cue"></div>
-            <div class="hero-art-caption"><span>01 / 03</span><b>THE PERFECT BREAK</b></div>
-            <div class="hero-stamp"><span>PLAY</span><b>YOUR<br />GAME</b></div>
-        </div>
-        <div class="hero-bottomline"><span>CURATED FOR PLAYERS, BY PLAYERS</span><span>EST. FOR THE LOVE OF THE GAME <b>✳</b></span></div>
-    </section>
+            <div class="hero-img">
+                 <img src="@StoreImages.PoolBalls"
+                     alt="Numbered pool balls ready for a game"
+                     loading="eager" />
+                <div class="hero-img-overlay"></div>
+            </div>
+        </section>
 
-    <section class="benefit-strip" aria-label="Shopping benefits">
-        <div><span class="benefit-icon">✳</span><span><b>Player-picked gear</b><small>Tested and loved at the table</small></span></div>
-        <div><span class="benefit-icon">↗</span><span><b>Free shipping $75+</b><small>More gear, fewer extra fees</small></span></div>
-        <div><span class="benefit-icon">◎</span><span><b>Here for your game</b><small>Real help from real players</small></span></div>
-    </section>
-
-    <section class="section-block category-section">
-        <div class="section-heading"><div><span class="eyebrow">FIND YOUR EDGE</span><h2>Shop by category</h2></div><a class="text-link" href="/products">See everything <span aria-hidden="true">→</span></a></div>
-        <div class="category-grid">
-            <a class="category-tile category-cues" href="/products?category=Cues"><span class="category-number">01</span><span class="category-visual cue-visual" aria-hidden="true">╱</span><span class="category-title">Cues</span><span class="category-subtitle">Find your feel <span aria-hidden="true">↗</span></span></a>
-            <a class="category-tile category-balls" href="/products?category=Balls"><span class="category-number">02</span><span class="category-visual balls-visual" aria-hidden="true"><i></i><i></i><i></i></span><span class="category-title">Balls &amp; racks</span><span class="category-subtitle">Set up for a good one <span aria-hidden="true">↗</span></span></a>
-            <a class="category-tile category-accessories" href="/products?category=Accessories"><span class="category-number">03</span><span class="category-visual accessory-visual" aria-hidden="true">✳</span><span class="category-title">Accessories</span><span class="category-subtitle">The little things matter <span aria-hidden="true">↗</span></span></a>
+        <!-- Benefits -->
+        <div class="benefits">
+            <div class="benefit-item">
+                <span class="benefit-icon">🎱</span>
+                <div>
+                    <h3>Player-picked gear</h3>
+                    <p>Tested and loved at the table</p>
+                </div>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-icon">🚚</span>
+                <div>
+                    <h3>Free shipping $75+</h3>
+                    <p>More gear, fewer extra fees</p>
+                </div>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-icon">💬</span>
+                <div>
+                    <h3>Real player support</h3>
+                    <p>Help from people who actually play</p>
+                </div>
+            </div>
         </div>
-    </section>
+    </div>
 
-    <section class="section-block featured-section">
-        <div class="section-heading"><div><span class="eyebrow">THE PLAYER FAVORITES</span><h2>Good gear, great games.</h2></div><a class="text-link" href="/products">Shop all gear <span aria-hidden="true">→</span></a></div>
-        <div class="product-grid">
-            @foreach (var product in Store.GetAllProducts().Take(4))
-            {
-                <article class="product-card">
-                    <a class="product-art @ArtClass(product)" href="/products" aria-label="Browse @product.Name">
-                        <span class="product-badge">PLAYER PICK</span>
-                        <span class="product-art-symbol" aria-hidden="true">@ArtSymbol(product)</span>
-                        <span class="product-art-caption">CUEVAULT · @product.Category.ToUpperInvariant()</span>
-                        <span class="quick-view">View details <b>↗</b></span>
-                    </a>
-                    <div class="product-info">
-                        <span class="product-category">@product.Category.ToUpperInvariant()</span>
-                        <a class="product-name" href="/products">@product.Name</a>
-                        <div class="product-rating"><span>★★★★★</span><small>(@Store.GetReviewsFor(product.Id).Count() reviews)</small></div>
-                        <div class="product-buy-row"><b class="product-price">$@product.Price.ToString("0.00")</b><button class="add-button" disabled="@(!CanAdd(product))" aria-label="Add @product.Name to cart" @onclick="() => AddToCart(product)">+</button></div>
+    <!-- Categories -->
+    <section class="section">
+        <div class="page-wrap">
+            <div class="section-header">
+                <div>
+                    <span class="label">Find your edge</span>
+                    <h2>Shop by category</h2>
+                </div>
+                <a class="btn btn-ghost btn-sm" href="/products">See everything →</a>
+            </div>
+            <div class="category-grid">
+                <a class="category-card" href="/products?category=Cues">
+                    <img src="@StoreImages.CueOnTable"
+                         alt="Billiard cues" loading="lazy" />
+                    <div class="category-card-overlay">
+                        <span class="label">01</span>
+                        <h3>Cues</h3>
+                        <span class="category-card-link">Shop cues ↗</span>
                     </div>
-                </article>
-            }
+                </a>
+                <a class="category-card" href="/products?category=Balls">
+                    <img src="@StoreImages.PoolBalls"
+                         alt="Billiard balls" loading="lazy" />
+                    <div class="category-card-overlay">
+                        <span class="label">02</span>
+                        <h3>Balls & Racks</h3>
+                        <span class="category-card-link">Shop balls ↗</span>
+                    </div>
+                </a>
+                <a class="category-card" href="/products?category=Accessories">
+                    <img src="@StoreImages.CueBallAndChalk"
+                         alt="Billiard accessories" loading="lazy" />
+                    <div class="category-card-overlay">
+                        <span class="label">03</span>
+                        <h3>Accessories</h3>
+                        <span class="category-card-link">Shop accessories ↗</span>
+                    </div>
+                </a>
+            </div>
         </div>
     </section>
 
-    <section class="story-banner">
-        <div class="story-art" aria-hidden="true"><span class="story-ball"><span>8</span></span><span class="story-cue"></span><span class="story-spark">✳</span></div>
-        <div class="story-copy"><span class="eyebrow">MORE THAN JUST GEAR</span><h2>It’s not just the shot.<br /><em>It’s the feeling.</em></h2><p>The quiet before the break. The click of a clean hit. That one table you always come back to. We’re here for all of it.</p><a class="button button-light" href="/reviews">Hear it from the players <span aria-hidden="true">→</span></a></div>
-        <span class="story-side-note">CUEVAULT FIELD NOTES&nbsp; / &nbsp;VOL. 01</span>
+    <!-- Featured products -->
+    <section class="section" style="padding-top:0">
+        <div class="page-wrap">
+            <div class="section-header">
+                <div>
+                    <span class="label">Player favorites</span>
+                    <h2>Good gear, great games.</h2>
+                </div>
+                <a class="btn btn-ghost btn-sm" href="/products">Shop all gear →</a>
+            </div>
+            <div class="product-grid">
+                @foreach (var product in Store.GetAllProducts().Take(4))
+                {
+                    <article class="product-card">
+                        <div class="product-img">
+                            <img src="@ProductImg(product)" alt="@product.Name" loading="lazy" />
+                            @if (product.Stock <= 6)
+                            {
+                                <span class="product-badge badge-low">Only @product.Stock left</span>
+                            }
+                            else
+                            {
+                                <span class="product-badge badge-pick">Player pick</span>
+                            }
+                            <div class="product-add-overlay">
+                                <button class="btn btn-primary" disabled="@(!CanAdd(product))"
+                                        @onclick="() => AddToCart(product)"
+                                        aria-label="Add @product.Name to bag">
+                                    Add to bag
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-body">
+                            <span class="product-cat">@product.Category</span>
+                            <a class="product-name" href="/products">@product.Name</a>
+                            <div class="product-rating">
+                                <span class="stars">★★★★★</span>
+                                <small>(@Store.GetReviewsFor(product.Id).Count() reviews)</small>
+                            </div>
+                            <div class="product-footer">
+                                <span class="product-price">$@product.Price.ToString("0.00")</span>
+                                <button class="add-btn" disabled="@(!CanAdd(product))"
+                                        aria-label="Add @product.Name to bag"
+                                        @onclick="() => AddToCart(product)">+</button>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        </div>
     </section>
 
-    <section class="section-block review-section">
-        <div class="section-heading"><div><span class="eyebrow">DON’T JUST TAKE OUR WORD FOR IT</span><h2>Good words from good players.</h2></div><a class="text-link" href="/reviews">Read all reviews <span aria-hidden="true">→</span></a></div>
-        <div class="review-grid">
-            @foreach (var review in Store.GetAllReviews().Take(3))
-            {
-                <article class="review-card"><div class="review-stars">@(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))</div><blockquote>“@review.Comment”</blockquote><div class="review-byline"><span class="review-avatar">@review.Author[..1]</span><span><b>@review.Author</b><small>Verified player · @review.ProductName</small></span><span class="verified-mark">✓</span></div></article>
-            }
+    <!-- Story banner -->
+    <div class="page-wrap" style="padding-bottom:64px">
+        <div class="story-banner">
+            <div class="story-img">
+                <img src="@StoreImages.CueOnTable"
+                     alt="Pool hall atmosphere" loading="lazy" />
+            </div>
+            <div class="story-copy">
+                <span class="label">More than just gear</span>
+                <h2>It's not just the shot.<br /><em>It's the feeling.</em></h2>
+                <p>The quiet before the break. The click of a clean hit. That one table you always come back to. We're here for all of it.</p>
+                <a class="btn btn-primary" href="/reviews">Hear it from the players →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews -->
+    <section class="section" style="padding-top:0">
+        <div class="page-wrap">
+            <div class="section-header">
+                <div>
+                    <span class="label">Don't just take our word for it</span>
+                    <h2>Good words from good players.</h2>
+                </div>
+                <a class="btn btn-ghost btn-sm" href="/reviews">All reviews →</a>
+            </div>
+            <div class="reviews-grid">
+                @foreach (var review in Store.GetAllReviews().Take(3))
+                {
+                    <article class="review-card">
+                        <div class="review-stars">@(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))</div>
+                        <blockquote>"@review.Comment"</blockquote>
+                        <div class="review-byline">
+                            <span class="review-avatar">@review.Author[..1]</span>
+                            <span>
+                                <b>@review.Author</b>
+                                <small>Verified player · @review.ProductName</small>
+                            </span>
+                            <span class="review-check">✓</span>
+                        </div>
+                    </article>
+                }
+            </div>
         </div>
     </section>
 </div>
 
 @code {
+    string ProductImg(ProductEntry p) => StoreImages.ForProduct(p);
+
     protected override void OnInitialized() => Store.OnProductChanged += Refresh;
     void Refresh() => InvokeAsync(StateHasChanged);
-    bool CanAdd(ProductEntry product) => product.Stock > (Cart.Items.FirstOrDefault(item => item.ProductId == product.Id)?.Quantity ?? 0);
+    bool CanAdd(ProductEntry product) => product.Stock > (Cart.Items.FirstOrDefault(i => i.ProductId == product.Id)?.Quantity ?? 0);
     void AddToCart(ProductEntry product) { if (CanAdd(product)) Cart.Add(product.Id, product.Name, product.Price); }
-    static string ArtClass(ProductEntry product) => product.Category switch { "Cues" => "art-cue", "Balls" => "art-balls", _ => "art-accessory" };
-    static string ArtSymbol(ProductEntry product) => product.Category switch { "Cues" => "╱", "Balls" => "● ● ●", _ => "✳" };
     public void Dispose() => Store.OnProductChanged -= Refresh;
 }
