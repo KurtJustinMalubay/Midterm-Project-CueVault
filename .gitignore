@@ -1,0 +1,11 @@
+## Build output
+bin/
+obj/
+
+## Local Tailwind CLI binary (downloaded separately; see HOW_TO_RUN.md)
+tailwindcss.exe
+
+## IDE and user-specific files
+.vs/
+*.user
+*.suo

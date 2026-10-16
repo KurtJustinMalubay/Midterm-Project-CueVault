@@ -1,0 +1,76 @@
+@page "/products"
+@inject StoreService Store
+@inject UiState Ui
+@implements IDisposable
+
+<PageTitle>Products · CueVault</PageTitle>
+
+<div class="mb-[1.6rem]">
+    <h1>Products</h1>
+    <p class="text-[#8faa7e]">Browse and manage your billiards inventory.</p>
+</div>
+
+@* Filter bar *@
+<div class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.2rem_1.3rem]">
+    <div class="flex flex-wrap gap-[.5rem] mb-[.9rem]">
+        @foreach (var f in Filters)
+        {
+            var active = activeFilter == f;
+            <button class="px-[.8rem] py-[.3rem] border rounded-full text-[.85rem] transition-colors @(active ? "border-[#a3d977] bg-[#a3d977] text-[#0d1a05] font-semibold" : "border-[#2a3823] text-[#8faa7e] hover:text-[#edf2e8] hover:border-[#3d5030]")"
+                    @onclick="() => activeFilter = f">@f</button>
+        }
+    </div>
+
+    @* Product grid *@
+    @{
+        var products = FilteredProducts.ToList();
+    }
+    @if (!products.Any())
+    {
+        <p class="text-[#8faa7e] text-center py-8">No products in this category yet.</p>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 gap-[2px]">
+            @foreach (var p in products)
+            {
+                <div class="grid grid-cols-[1fr_auto_auto_auto] gap-[1rem] items-center p-[.8rem_.5rem] rounded-[8px] hover:bg-[#1c2518]">
+                    <span class="grid min-w-0">
+                        <span class="font-semibold whitespace-nowrap overflow-hidden text-ellipsis">@p.Name</span>
+                        <span class="text-[#8faa7e] text-[.82rem]">@p.Category · @p.Condition · @p.CreatedAt.ToString("MMM dd")</span>
+                    </span>
+                    <span class="flex gap-[.5rem] text-[#8faa7e] font-mono text-[.78rem]">
+                        @foreach (var t in p.Tags) { <span>#@t</span> }
+                    </span>
+                    <span class="text-[#d4a847] font-semibold">$@p.Price.ToString("0.00")</span>
+                    <span class="@StockClass(p.Stock) font-mono text-[.82rem] font-semibold min-w-[4rem] text-right">
+                        @p.Stock in stock
+                    </span>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@* Add product CTA *@
+<div class="mt-[1.4rem] text-center">
+    <button class="inline-flex items-center gap-[.5rem] px-[1.2rem] py-[.7rem] rounded-[10px] font-semibold bg-[#a3d977] text-[#0d1a05] hover:brightness-[1.08]"
+            @onclick='() => Ui.Show("Add product")'>
+        + Add product
+    </button>
+</div>
+
+@code {
+    static readonly string[] Filters = ["All", "Cues", "Balls", "Accessories"];
+    string activeFilter = "All";
+
+    IEnumerable<ProductEntry> FilteredProducts => activeFilter == "All"
+        ? Store.GetAllProducts()
+        : Store.GetAllProducts().Where(p => p.Category == activeFilter);
+
+    string StockClass(int stock) => stock <= 3 ? "text-[#e07060]" : stock <= 8 ? "text-[#d4a847]" : "text-[#a3d977]";
+
+    protected override void OnInitialized() => Store.OnProductChanged += Refresh;
+    void Refresh() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Store.OnProductChanged -= Refresh;
+}

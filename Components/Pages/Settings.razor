@@ -1,0 +1,130 @@
+@page "/settings"
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Settings · CueVault</PageTitle>
+
+<div class="max-w-[600px] mb-8">
+    <h1>Settings</h1>
+    <p class="text-[#8faa7e]">Manage your account and store preferences.</p>
+</div>
+
+<div class="max-w-[600px] grid gap-6">
+
+    @* Profile section *@
+    <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.5rem]">
+        <h2 class="text-xl font-semibold mb-4">Profile Information</h2>
+        <EditForm Model="model" OnValidSubmit="SaveProfileAsync" FormName="settings">
+            <DataAnnotationsValidator />
+
+            @if (message is not null)
+            {
+                <div class="mb-4 p-3 rounded-lg @(isError ? "bg-[#e07060]/10 border border-[#e07060]/40 text-[#f0b0a0]" : "bg-[#a3d977]/10 border border-[#a3d977]/40 text-[#a3d977]")">
+                    @message
+                </div>
+            }
+
+            <div class="grid gap-4">
+                <label class="grid gap-1 font-semibold text-sm">
+                    <span>Username</span>
+                    <InputText @bind-Value="model.Username" class="@InputCss" />
+                    <ValidationMessage For="() => model.Username" class="text-[#e07060] text-[.82rem] font-normal" />
+                </label>
+                <label class="grid gap-1 font-semibold text-sm">
+                    <span>Email</span>
+                    <InputText @bind-Value="model.Email" class="@InputCss" />
+                    <ValidationMessage For="() => model.Email" class="text-[#e07060] text-[.82rem] font-normal" />
+                </label>
+                <div class="pt-2">
+                    <button class="inline-flex items-center justify-center gap-[.4rem] p-[.6rem_1.05rem] rounded-[10px] font-semibold bg-[#a3d977] text-[#0d1a05] hover:brightness-[1.08] disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled="@busy">
+                        @(busy ? "Saving…" : "Save changes")
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </section>
+
+    @* Preferences section *@
+    <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.5rem]">
+        <h2 class="text-xl font-semibold mb-4">Preferences</h2>
+        <div class="grid gap-6">
+            <label class="flex items-center justify-between cursor-pointer">
+                <div>
+                    <div class="font-semibold text-sm text-[#edf2e8]">Order Notifications</div>
+                    <div class="text-sm text-[#8faa7e]">Get notified when new orders arrive.</div>
+                </div>
+                <div class="relative">
+                    <input type="checkbox" @bind="orderNotifications" class="peer sr-only" />
+                    <div class="w-11 h-6 bg-[#2a3823] rounded-[20px] peer peer-checked:bg-[#a3d977] transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#edf2e8] after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:bg-[#0d1a05]"></div>
+                </div>
+            </label>
+            <label class="flex items-center justify-between cursor-pointer">
+                <div>
+                    <div class="font-semibold text-sm text-[#edf2e8]">Low Stock Alerts</div>
+                    <div class="text-sm text-[#8faa7e]">Warn when products drop below 5 units.</div>
+                </div>
+                <div class="relative">
+                    <input type="checkbox" @bind="lowStockAlerts" class="peer sr-only" />
+                    <div class="w-11 h-6 bg-[#2a3823] rounded-[20px] peer peer-checked:bg-[#a3d977] transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#edf2e8] after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:bg-[#0d1a05]"></div>
+                </div>
+            </label>
+        </div>
+    </section>
+
+    @* Danger zone *@
+    <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.5rem]">
+        <h2 class="text-xl font-semibold mb-4 text-[#e07060]">Danger Zone</h2>
+        <p class="text-[#8faa7e] text-sm mb-4">Once you delete your account there is no going back. Please be certain.</p>
+        <button class="px-4 py-2 border border-[#e07060] text-[#e07060] font-semibold rounded-[10px] hover:bg-[#e07060]/10 transition-colors"
+                @onclick="DeleteAccount">Delete Account</button>
+    </section>
+</div>
+
+@code {
+    class ProfileModel
+    {
+        [Required(ErrorMessage = "Username is required.")]
+        [StringLength(24, MinimumLength = 3)]
+        [RegularExpression("^[A-Za-z0-9_-]+$")]
+        public string Username { get; set; } = "";
+
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+    }
+
+    readonly ProfileModel model = new();
+    bool busy;
+    string? message;
+    bool isError;
+    bool orderNotifications = true;
+    bool lowStockAlerts = true;
+
+    const string InputCss = "w-full p-[.7rem_.85rem] bg-[#0c0f0a] border border-[#2a3823] rounded-[10px] text-[#edf2e8] font-normal focus:outline-none focus:border-[#a3d977]";
+
+    protected override void OnInitialized()
+    {
+        if (Auth.Current is not null)
+        {
+            model.Username = Auth.Current.Username;
+            model.Email    = Auth.Current.Email;
+        }
+    }
+
+    async Task SaveProfileAsync()
+    {
+        if (busy) return;
+        busy = true; message = null;
+        var (ok, err) = await Auth.UpdateProfileAsync(model.Username.Trim(), model.Email.Trim());
+        busy = false;
+        isError = !ok;
+        message = ok ? "Profile updated successfully." : err;
+    }
+
+    void DeleteAccount()
+    {
+        Auth.SignOut();
+        Nav.NavigateTo("/login", forceLoad: true);
+    }
+}

@@ -1,0 +1,131 @@
+@page "/register"
+@layout AuthLayout
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Create account · CueVault</PageTitle>
+<h1 class="text-[1.75rem] leading-[1.2] m-0 mb-[.4rem] tracking-[-.02em]">Create your account</h1>
+<p class="m-0 mb-[1rem] text-[#8faa7e]">Join CueVault — your billiards store management hub.</p>
+
+<EditForm Model="model" OnValidSubmit="SubmitAsync" FormName="register" class="grid gap-[1.1rem] mt-[1.6rem]">
+    <DataAnnotationsValidator />
+
+    @if (error is not null)
+    {
+        <div class="bg-[#e07060]/10 border border-[#e07060]/40 text-[#f0b0a0] px-[.9rem] py-[.7rem] rounded-[10px] text-[.9rem]" role="alert">
+            @error
+        </div>
+    }
+
+    <label class="grid gap-[.4rem] font-semibold text-[.9rem]">
+        <span>Username</span>
+        <InputText @bind-Value="model.Username" autocomplete="username" placeholder="rack_master"
+                   class="@InputCss" />
+        <ValidationMessage For="() => model.Username" class="text-[#e07060] font-normal text-[.82rem]" />
+    </label>
+
+    <label class="grid gap-[.4rem] font-semibold text-[.9rem]">
+        <span>Email</span>
+        <InputText @bind-Value="model.Email" type="email" autocomplete="email" placeholder="you@cuevault.shop"
+                   class="@InputCss" />
+        <ValidationMessage For="() => model.Email" class="text-[#e07060] font-normal text-[.82rem]" />
+    </label>
+
+    <div class="grid gap-[.4rem] font-semibold text-[.9rem]">
+        <label for="pw">Password</label>
+        <span class="relative block">
+            <InputText id="pw" @bind-Value="model.Password"
+                       type="@(showPw ? "text" : "password")"
+                       autocomplete="new-password"
+                       class="@($"{InputCss} w-full pr-[4.2rem]")" />
+            <button type="button" class="text-[#a3d977] text-[.875rem] hover:underline absolute right-[.8rem] top-1/2 -translate-y-1/2"
+                    @onclick="() => showPw = !showPw">@(showPw ? "Hide" : "Show")</button>
+        </span>
+        @* Password strength bars *@
+        <span class="grid grid-cols-4 gap-[4px]" aria-hidden="true">
+            @for (var i = 1; i <= 4; i++)
+            {
+                var filled = i <= Strength;
+                var color = filled ? Strength switch { 1 => "bg-[#e07060]", 2 => "bg-[#d4a847]", 3 => "bg-[#a3d977]", 4 => "bg-[#a3d977]", _ => "bg-[#2a3823]" } : "bg-[#2a3823]";
+                <i class="h-[4px] rounded-[2px] @color"></i>
+            }
+        </span>
+        <ValidationMessage For="() => model.Password" class="text-[#e07060] font-normal text-[.82rem]" />
+    </div>
+
+    <div class="grid gap-[.4rem] font-semibold text-[.9rem]">
+        <label for="cpw">Confirm password</label>
+        <span class="relative block">
+            <InputText id="cpw" @bind-Value="model.Confirm"
+                       type="@(showConfirm ? "text" : "password")"
+                       autocomplete="new-password"
+                       class="@($"{InputCss} w-full pr-[4.2rem]")" />
+            <button type="button" class="text-[#a3d977] text-[.875rem] hover:underline absolute right-[.8rem] top-1/2 -translate-y-1/2"
+                    @onclick="() => showConfirm = !showConfirm">@(showConfirm ? "Hide" : "Show")</button>
+        </span>
+        <ValidationMessage For="() => model.Confirm" class="text-[#e07060] font-normal text-[.82rem]" />
+    </div>
+
+    <button class="@BtnPrimary w-full" disabled="@busy">
+        @(busy ? "Creating account…" : "Create account")
+    </button>
+</EditForm>
+
+<p class="text-center m-0 mt-[1.5rem] text-[#8faa7e]">
+    Already have an account? <a href="/login" class="text-[#a3d977] no-underline hover:underline">Sign in</a>
+</p>
+
+@code {
+    class RegisterModel
+    {
+        [Required(ErrorMessage = "Choose a username.")]
+        [StringLength(24, MinimumLength = 3, ErrorMessage = "Use 3 to 24 characters.")]
+        [RegularExpression("^[A-Za-z0-9_-]+$", ErrorMessage = "Letters, numbers, - and _ only.")]
+        public string Username { get; set; } = "";
+
+        [Required(ErrorMessage = "Enter your email.")]
+        [EmailAddress(ErrorMessage = "That doesn't look like a valid email.")]
+        public string Email { get; set; } = "";
+
+        [Required(ErrorMessage = "Choose a password.")]
+        [MinLength(8, ErrorMessage = "Use at least 8 characters.")]
+        public string Password { get; set; } = "";
+
+        [Required(ErrorMessage = "Confirm your password.")]
+        [Compare(nameof(Password), ErrorMessage = "Passwords don't match.")]
+        public string Confirm { get; set; } = "";
+    }
+
+    readonly RegisterModel model = new();
+    bool busy, showPw, showConfirm;
+    string? error;
+
+    const string InputCss = "w-full px-[.85rem] py-[.7rem] bg-[#121810] border border-[#2a3823] rounded-[10px] text-[#edf2e8] font-normal placeholder-[#4a6a3a] focus:outline-none focus:border-[#a3d977] focus:shadow-[0_0_0_3px_rgba(163,217,119,.18)]";
+    const string BtnPrimary = "inline-flex items-center justify-center gap-[.4rem] px-[1.05rem] py-[.6rem] rounded-[10px] font-semibold bg-[#a3d977] text-[#0d1a05] hover:brightness-[1.08] hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed";
+
+    int Strength
+    {
+        get
+        {
+            var p = model.Password;
+            if (p.Length == 0) return 0;
+            return Math.Max(1, (p.Length >= 8 ? 1 : 0) + (p.Length >= 12 ? 1 : 0)
+                + (p.Any(char.IsUpper) && p.Any(char.IsLower) ? 1 : 0)
+                + (p.Any(char.IsDigit) && p.Any(c => !char.IsLetterOrDigit(c)) ? 1 : 0));
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Auth.IsAuthenticated) Nav.NavigateTo("/");
+    }
+
+    async Task SubmitAsync()
+    {
+        if (busy) return;
+        busy = true; error = null;
+        var (ok, err) = await Auth.RegisterAsync(model.Username.Trim(), model.Email.Trim(), model.Password);
+        busy = false;
+        if (ok) Nav.NavigateTo("/"); else error = err;
+    }
+}

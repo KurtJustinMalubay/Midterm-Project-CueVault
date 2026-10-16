@@ -1,0 +1,89 @@
+@inherits LayoutComponentBase
+@inject AuthService Auth
+@inject NavigationManager Nav
+@inject UiState Ui
+
+@if (Auth.IsAuthenticated)
+{
+    <div class="grid grid-cols-[230px_1fr] min-h-screen">
+
+        @* Sidebar *@
+        <nav class="bg-[#080b07] border-r border-[#2a3823] p-[1.4rem_1rem] flex flex-col gap-[1.6rem] sticky top-0 h-screen"
+             aria-label="Main">
+
+            @* Brand *@
+            <a class="flex items-center gap-[.6rem] font-bold text-[1.15rem] text-[#edf2e8] tracking-[-.02em] hover:no-underline" href="/">
+                <span class="text-[1.4rem]">🎱</span> CueVault
+            </a>
+
+            @* Nav links *@
+            <div class="grid gap-[2px]">
+                <NavLink class="group flex items-center gap-[.7rem] p-[.55rem_.75rem] rounded-[8px] text-[#8faa7e] font-medium hover:bg-[#1c2518] hover:text-[#edf2e8] hover:no-underline [&.active]:bg-[#243020] [&.active]:text-[#edf2e8]"
+                         href="/" Match="NavLinkMatch.All">
+                    <span class="w-[1.3rem] text-center text-[.9rem] group-[.active]:text-[#a3d977]">⌂</span>Dashboard
+                </NavLink>
+                <NavLink class="group flex items-center gap-[.7rem] p-[.55rem_.75rem] rounded-[8px] text-[#8faa7e] font-medium hover:bg-[#1c2518] hover:text-[#edf2e8] hover:no-underline [&.active]:bg-[#243020] [&.active]:text-[#edf2e8]"
+                         href="/products">
+                    <span class="w-[1.3rem] text-center text-[.9rem] group-[.active]:text-[#a3d977]">◈</span>Products
+                </NavLink>
+                <NavLink class="group flex items-center gap-[.7rem] p-[.55rem_.75rem] rounded-[8px] text-[#8faa7e] font-medium hover:bg-[#1c2518] hover:text-[#edf2e8] hover:no-underline [&.active]:bg-[#243020] [&.active]:text-[#edf2e8]"
+                         href="/orders">
+                    <span class="w-[1.3rem] text-center text-[.9rem] group-[.active]:text-[#a3d977]">≡</span>Orders
+                </NavLink>
+                <NavLink class="group flex items-center gap-[.7rem] p-[.55rem_.75rem] rounded-[8px] text-[#8faa7e] font-medium hover:bg-[#1c2518] hover:text-[#edf2e8] hover:no-underline [&.active]:bg-[#243020] [&.active]:text-[#edf2e8]"
+                         href="/reviews">
+                    <span class="w-[1.3rem] text-center text-[.9rem] group-[.active]:text-[#a3d977]">★</span>Reviews
+                </NavLink>
+                <NavLink class="group flex items-center gap-[.7rem] p-[.55rem_.75rem] rounded-[8px] text-[#8faa7e] font-medium hover:bg-[#1c2518] hover:text-[#edf2e8] hover:no-underline [&.active]:bg-[#243020] [&.active]:text-[#edf2e8]"
+                         href="/settings">
+                    <span class="w-[1.3rem] text-center text-[.9rem] group-[.active]:text-[#a3d977]">⚙</span>Settings
+                </NavLink>
+            </div>
+
+            @* User footer *@
+            <div class="mt-auto grid grid-cols-[auto_1fr] gap-[.1rem_.7rem] items-center pt-[1rem] border-t border-[#2a3823]">
+                <span class="row-span-2 w-[34px] h-[34px] rounded-full bg-[#1c2518] grid place-items-center font-bold text-[#a3d977]">
+                    @(Auth.Current!.Username[..1].ToUpper())
+                </span>
+                <span class="font-semibold overflow-hidden text-ellipsis">@Auth.Current.Username</span>
+                <button class="text-left text-[#8faa7e] p-0 text-[.875rem] hover:underline" @onclick="SignOut">
+                    Sign out
+                </button>
+            </div>
+        </nav>
+
+        @* Main area *@
+        <div class="min-w-0">
+            <header class="flex gap-[1rem] items-center p-[1rem_2rem] border-b border-[#2a3823] sticky top-0 bg-[rgba(12,15,10,.92)] backdrop-blur-[8px] z-[5]">
+                <button class="flex-1 max-w-[520px] flex justify-between items-center p-[.6rem_.9rem] bg-[#121810] border border-[#2a3823] rounded-[10px] text-[#6a8a5a] text-left hover:border-[#3d5030]"
+                        @onclick='() => Ui.Show("Search")'>
+                    <span>Search products, orders…</span>
+                    <kbd class="font-mono text-[.75rem] p-[.15rem_.45rem] border border-[#2a3823] rounded-[5px] text-[#8faa7e]">Ctrl K</kbd>
+                </button>
+                <button class="ml-auto inline-flex items-center justify-center gap-[.4rem] p-[.6rem_1.05rem] rounded-[10px] font-semibold border border-transparent transition-[filter,background] duration-150 bg-[#a3d977] text-[#0d1a05] hover:brightness-[1.08] hover:no-underline"
+                        @onclick='() => Ui.Show("Add product")'>
+                    + Add product
+                </button>
+            </header>
+            <div class="p-[2rem] max-w-[1180px]">@Body</div>
+        </div>
+
+    </div>
+}
+
+<UnderDevModal />
+<AddProductModal />
+<SearchModal />
+
+@code {
+    protected override void OnInitialized()
+    {
+        if (!Auth.IsAuthenticated) Nav.NavigateTo("/login");
+    }
+
+    void SignOut()
+    {
+        Auth.SignOut();
+        Nav.NavigateTo("/login");
+    }
+}

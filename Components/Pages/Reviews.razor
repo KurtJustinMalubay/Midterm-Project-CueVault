@@ -1,0 +1,60 @@
+@page "/reviews"
+@inject StoreService Store
+@implements IDisposable
+
+<PageTitle>Reviews · CueVault</PageTitle>
+
+<div class="mb-[1.6rem]">
+    <h1>Customer Reviews</h1>
+    <p class="text-[#8faa7e]">See what your customers are saying about CueVault products.</p>
+</div>
+
+@* Summary card *@
+<div class="grid grid-cols-3 border border-[#2a3823] rounded-[10px] bg-[#121810] mb-[1.4rem]">
+    <div class="p-[1rem_1.3rem] grid gap-[.1rem]">
+        <strong class="text-[1.5rem] tracking-[-.02em] text-[#d4a847]">@Store.AverageRating.ToString("0.0") ★</strong>
+        <span class="text-[#8faa7e] text-[.85rem]">average rating</span>
+    </div>
+    <div class="p-[1rem_1.3rem] grid gap-[.1rem] border-l border-[#2a3823]">
+        <strong class="text-[1.5rem] tracking-[-.02em]">@Store.GetAllReviews().Count()</strong>
+        <span class="text-[#8faa7e] text-[.85rem]">total reviews</span>
+    </div>
+    <div class="p-[1rem_1.3rem] grid gap-[.1rem] border-l border-[#2a3823]">
+        <strong class="text-[1.5rem] tracking-[-.02em]">@Store.GetAllReviews().Count(r => r.Rating == 5)</strong>
+        <span class="text-[#8faa7e] text-[.85rem]">5-star reviews</span>
+    </div>
+</div>
+
+@* Review list *@
+<div class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.2rem_1.3rem]">
+    <h2>All Reviews</h2>
+    <ul class="grid gap-[1rem]">
+        @foreach (var r in Store.GetAllReviews())
+        {
+            <li class="border border-[#2a3823] rounded-[10px] p-[1rem_1.2rem] hover:border-[#3d5030] transition-colors">
+                <div class="flex justify-between items-start mb-[.4rem]">
+                    <div>
+                        <span class="font-semibold text-[.9rem]">@r.Author</span>
+                        <span class="text-[#8faa7e] text-[.82rem] ml-[.6rem]">on @r.ProductName</span>
+                    </div>
+                    <div class="flex items-center gap-[.3rem]">
+                        <span class="text-[#d4a847] text-[.9rem]">@(new string('★', r.Rating))@(new string('☆', 5 - r.Rating))</span>
+                        <span class="text-[#8faa7e] text-[.78rem]">@r.CreatedAt.ToString("MMM dd")</span>
+                    </div>
+                </div>
+                <p class="text-[#8faa7e] text-[.9rem] m-0">@r.Comment</p>
+            </li>
+        }
+    </ul>
+
+    @if (!Store.GetAllReviews().Any())
+    {
+        <p class="text-[#8faa7e] text-center py-8">No reviews yet.</p>
+    }
+</div>
+
+@code {
+    protected override void OnInitialized() => Store.OnReviewChanged += Refresh;
+    void Refresh() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Store.OnReviewChanged -= Refresh;
+}

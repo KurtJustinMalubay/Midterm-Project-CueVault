@@ -1,0 +1,24 @@
+@inject UiState Ui
+@implements IDisposable
+
+@if (Ui.Feature is not null && Ui.Feature != "Add product" && Ui.Feature != "Search")
+{
+    <div class="fixed inset-0 bg-[rgba(4,8,2,.75)] grid place-items-center p-[1rem] z-50"
+         @onclick="Ui.Close">
+        <div class="w-full max-w-[380px] bg-[#121810] border border-[#2a3823] rounded-[14px] p-[2rem_1.8rem] text-center shadow-[0_24px_60px_rgba(0,0,0,.5)]"
+             role="dialog" aria-modal="true" aria-labelledby="dev-title"
+             @onclick:stopPropagation>
+            <div class="text-[2.2rem] mb-[.6rem]" aria-hidden="true">🚧</div>
+            <h2 class="text-[1.2rem] mb-[.5rem]" id="dev-title">@Ui.Feature is under development</h2>
+            <p class="text-[#8faa7e]">We're still building this part of CueVault. It will appear here soon.</p>
+            <button class="mt-[.6rem] min-w-[8rem] inline-flex items-center justify-center p-[.6rem_1.05rem] rounded-[10px] font-semibold bg-[#a3d977] text-[#0d1a05] hover:brightness-[1.08]"
+                    @onclick="Ui.Close">Got it</button>
+        </div>
+    </div>
+}
+
+@code {
+    protected override void OnInitialized() => Ui.Changed += Refresh;
+    void Refresh() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Ui.Changed -= Refresh;
+}

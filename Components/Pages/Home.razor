@@ -1,0 +1,173 @@
+@page "/"
+@inject AuthService Auth
+@inject StoreService Store
+@inject UiState Ui
+@inject NavigationManager Nav
+@implements IDisposable
+
+<PageTitle>Dashboard · CueVault</PageTitle>
+
+@* Greeting *@
+<section class="mb-[1.6rem]">
+    <h1>@Greeting, @Auth.Current?.Username</h1>
+    <p class="text-[#8faa7e]">Here's your store at a glance. Add products or check recent orders below.</p>
+</section>
+
+@* Stats bar *@
+<section class="grid grid-cols-4 border border-[#2a3823] rounded-[10px] bg-[#121810] mb-[1.6rem]" aria-label="Store stats">
+    <div class="p-[1rem_1.3rem] grid gap-[.1rem]">
+        <strong class="text-[1.5rem] tracking-[-.02em]">@Store.TotalProducts</strong>
+        <span class="text-[#8faa7e] text-[.85rem]">products listed</span>
+    </div>
+    <div class="p-[1rem_1.3rem] grid gap-[.1rem] border-l border-[#2a3823]">
+        <strong class="text-[1.5rem] tracking-[-.02em]">@Store.PendingOrders</strong>
+        <span class="text-[#8faa7e] text-[.85rem]">pending orders</span>
+    </div>
+    <div class="p-[1rem_1.3rem] grid gap-[.1rem] border-l border-[#2a3823]">
+        <strong class="text-[1.5rem] tracking-[-.02em]">$@Store.TotalRevenue.ToString("0.00")</strong>
+        <span class="text-[#8faa7e] text-[.85rem]">total revenue</span>
+    </div>
+    <div class="p-[1rem_1.3rem] grid gap-[.1rem] border-l border-[#2a3823]">
+        <strong class="text-[1.5rem] tracking-[-.02em]">@Store.AverageRating.ToString("0.0") ★</strong>
+        <span class="text-[#8faa7e] text-[.85rem]">avg rating</span>
+    </div>
+</section>
+
+@* Two-column content *@
+<div class="grid grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-[1.4rem] items-start">
+
+    @* Left column *@
+    <div class="grid gap-[1.4rem]">
+
+        @* Recent orders *@
+        <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.2rem_1.3rem]">
+            <div class="flex justify-between items-baseline">
+                <h2>Recent orders</h2>
+                <button class="text-[#a3d977] text-[.875rem] hover:underline"
+                        @onclick='() => Nav.NavigateTo("/orders")'>View all</button>
+            </div>
+            <ul class="grid gap-[2px] m-[0_-.5rem]">
+                @foreach (var o in Store.GetRecentOrders(5))
+                {
+                    <li>
+                        <div class="grid grid-cols-[1fr_auto_auto] gap-[.9rem] items-center w-full p-[.7rem_.5rem] rounded-[8px] hover:bg-[#1c2518]">
+                            <span class="grid min-w-0">
+                                <span class="font-semibold whitespace-nowrap overflow-hidden text-ellipsis">@o.CustomerName</span>
+                                <span class="text-[#8faa7e] text-[.82rem]">@o.ProductName · @o.CreatedAt.ToString("MMM dd")</span>
+                            </span>
+                            <span class="text-[#d4a847] font-semibold text-[.9rem]">$@o.Total.ToString("0.00")</span>
+                            <span class="@StatusClass(o.Status) text-[.78rem] font-mono font-semibold">@o.Status</span>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </section>
+
+        @* Low stock alert *@
+        <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.2rem_1.3rem]">
+            <div class="flex justify-between items-baseline">
+                <h2>Low stock alert</h2>
+                <button class="text-[#a3d977] text-[.875rem] hover:underline"
+                        @onclick='() => Nav.NavigateTo("/products")'>Manage</button>
+            </div>
+            @{
+                var lowStock = Store.GetLowStock().ToList();
+            }
+            @if (lowStock.Count == 0)
+            {
+                <p class="text-[#8faa7e] text-[.9rem] m-0">All products are sufficiently stocked.</p>
+            }
+            else
+            {
+                <ul class="grid gap-[2px] m-[0_-.5rem]">
+                    @foreach (var p in lowStock)
+                    {
+                        <li class="grid grid-cols-[1fr_auto] gap-[.9rem] items-center p-[.6rem_.5rem] rounded-[8px] hover:bg-[#1c2518]">
+                            <span class="font-semibold text-[.9rem]">@p.Name</span>
+                            <span class="text-[#e07060] font-mono text-[.82rem] font-semibold">@p.Stock left</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+
+    @* Right column *@
+    <div class="grid gap-[1.4rem]">
+
+        @* Category breakdown *@
+        <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.2rem_1.3rem]">
+            <h2>Categories</h2>
+            <div class="flex flex-wrap gap-[.5rem]">
+                @foreach (var cat in Store.GetAllCategories())
+                {
+                    var count = Store.GetAllProducts().Count(p => p.Category == cat);
+                    <button class="p-[.3rem_.8rem] border border-[#2a3823] rounded-[999px] text-[#8faa7e] text-[.85rem] hover:text-[#edf2e8] hover:border-[#3d5030]"
+                            @onclick='() => Nav.NavigateTo("/products")'>
+                        @cat <span class="text-[#a3d977] font-semibold">@count</span>
+                    </button>
+                }
+            </div>
+        </section>
+
+        @* Tags *@
+        <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.2rem_1.3rem]">
+            <h2>Popular tags</h2>
+            <div class="flex flex-wrap gap-[.5rem]">
+                @foreach (var t in Store.GetAllTags())
+                {
+                    <button class="p-[.3rem_.8rem] border border-[#2a3823] rounded-[999px] text-[#8faa7e] text-[.85rem] hover:text-[#edf2e8] hover:border-[#3d5030]"
+                            @onclick='() => Nav.NavigateTo("/products")'>
+                        #@t
+                    </button>
+                }
+            </div>
+        </section>
+
+        @* Quick actions *@
+        <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.2rem_1.3rem]">
+            <h2>Quick actions</h2>
+            <div class="grid gap-[.5rem]">
+                <button class="w-full text-left p-[.7rem_.9rem] bg-[#1c2518] border border-[#2a3823] rounded-[8px] text-[.9rem] hover:border-[#a3d977] transition-colors"
+                        @onclick='() => Ui.Show("Add product")'>
+                    ➕ Add new product
+                </button>
+                <button class="w-full text-left p-[.7rem_.9rem] bg-[#1c2518] border border-[#2a3823] rounded-[8px] text-[.9rem] hover:border-[#a3d977] transition-colors"
+                        @onclick='() => Nav.NavigateTo("/orders")'>
+                    📦 View all orders
+                </button>
+                <button class="w-full text-left p-[.7rem_.9rem] bg-[#1c2518] border border-[#2a3823] rounded-[8px] text-[.9rem] hover:border-[#a3d977] transition-colors"
+                        @onclick='() => Nav.NavigateTo("/reviews")'>
+                    ⭐ Read customer reviews
+                </button>
+            </div>
+        </section>
+    </div>
+</div>
+
+@code {
+    static string Greeting => DateTime.Now.Hour switch { < 12 => "Good morning", < 18 => "Good afternoon", _ => "Good evening" };
+
+    string StatusClass(string status) => status switch
+    {
+        "Delivered"   => "text-[#a3d977]",
+        "Shipped"     => "text-[#7ab8e8]",
+        "Processing"  => "text-[#d4a847]",
+        "Cancelled"   => "text-[#e07060]",
+        _             => "text-[#8faa7e]"
+    };
+
+    protected override void OnInitialized()
+    {
+        Store.OnOrderChanged   += Refresh;
+        Store.OnProductChanged += Refresh;
+    }
+
+    void Refresh() => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        Store.OnOrderChanged   -= Refresh;
+        Store.OnProductChanged -= Refresh;
+    }
+}
