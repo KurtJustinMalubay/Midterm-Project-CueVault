@@ -1,6 +1,6 @@
 # CueVault
 
-**CueVault** is a billiards e-commerce store management app built with **Blazor Server** and **Tailwind CSS v4** on **.NET 10**.  
+**CueVault** is a customer-facing billiards e-commerce storefront built with **Blazor Server** and **Tailwind CSS v4** on **.NET 8**.  
 It mirrors the structure of the DevLogs reference app but is rethemed around a billiards brand — dark green felt palette, cue & ball iconography, and store-focused pages.
 
 > No database is used. All data lives in memory while the app runs and resets on restart.

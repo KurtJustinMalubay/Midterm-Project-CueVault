@@ -3,6 +3,7 @@
 @inject AuthService Auth
 @inject CartService Cart
 @inject NavigationManager Nav
+@inject IJSRuntime JS
 
 <div class="store-shell">
     <div class="announcement-bar">
@@ -25,6 +26,17 @@
             </form>
 
             <div class="header-actions">
+                <button class="theme-toggle" type="button" aria-label="Switch to @(isDark ? "light" : "dark") mode" aria-pressed="@isDark" title="Switch to @(isDark ? "light" : "dark") mode" @onclick="ToggleTheme">
+                    @if (isDark)
+                    {
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></svg>
+                    }
+                    else
+                    {
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.7 13.2A8.7 8.7 0 0 1 10.8 3.3 8.8 8.8 0 1 0 20.7 13.2Z" /></svg>
+                    }
+                    <span>@(isDark ? "Light" : "Dark")</span>
+                </button>
                 <a class="account-action" href="@(Auth.IsAuthenticated ? "/settings" : "/login")">
                     <span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5" /><path d="M5 21v-1.5a7 7 0 0 1 14 0V21z" /></svg></span>
                     <span><small>@(Auth.IsAuthenticated ? "WELCOME BACK" : "YOUR ACCOUNT")</small><b>@(Auth.Current?.Username ?? "Sign in")</b></span>
@@ -73,8 +85,22 @@
 
 @code {
     string searchQuery = "";
+    bool isDark;
 
     protected override void OnInitialized() => Cart.Changed += Refresh;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        isDark = await JS.InvokeAsync<string>("cueVaultTheme.read") == "dark";
+        StateHasChanged();
+    }
+
+    async Task ToggleTheme()
+    {
+        isDark = !isDark;
+        await JS.InvokeVoidAsync("cueVaultTheme.apply", isDark ? "dark" : "light");
+    }
 
     void Search()
     {

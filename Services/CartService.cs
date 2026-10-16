@@ -1,23 +1,6 @@
+using CueVault.Models;
+
 namespace CueVault.Services;
-
-/// <summary>One item in the shopping cart.</summary>
-public class CartItem
-{
-    public string ProductId { get; init; }
-    public string Name      { get; init; }
-    public decimal Price    { get; init; }
-    public int Quantity     { get; set; }
-
-    public CartItem(string productId, string name, decimal price)
-    {
-        ProductId = productId;
-        Name      = name;
-        Price     = price;
-        Quantity  = 1;
-    }
-
-    public decimal LineTotal => Price * Quantity;
-}
 
 /// <summary>
 /// Scoped (per browser session) shopping cart.

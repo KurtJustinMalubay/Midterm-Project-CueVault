@@ -1,10 +1,8 @@
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
+using CueVault.Models;
 
 namespace CueVault.Services;
-
-/// <summary>Represents a registered user account with hashed password.</summary>
-public record UserAccount(string Username, string Email, byte[] Salt, byte[] Hash);
 
 /// <summary>
 /// Scoped per-user service that handles registration, login, and profile updates.

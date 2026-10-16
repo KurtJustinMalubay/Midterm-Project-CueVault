@@ -4,7 +4,7 @@
 
 | Tool | Version |
 |---|---|
-| .NET SDK | 10.0 or later |
+| .NET SDK | 8.0 or later |
 | tailwindcss CLI | standalone binary (`tailwindcss.exe`) in project root |
 
 ---

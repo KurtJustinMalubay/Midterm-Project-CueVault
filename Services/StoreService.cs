@@ -1,22 +1,7 @@
 using System.Collections.Concurrent;
+using CueVault.Models;
 
 namespace CueVault.Services;
-
-// ── Data records ────────────────────────────────────────────────────────────
-
-public record ProductEntry(
-    string Id, string Name, string Description,
-    string Category, decimal Price, int Stock,
-    string Condition, DateTime CreatedAt, string[] Tags);
-
-public record OrderEntry(
-    string Id, string CustomerName, string CustomerEmail,
-    string ProductId, string ProductName, int Quantity, decimal Total,
-    string Status, DateTime CreatedAt);
-
-public record ReviewEntry(
-    string Id, string ProductId, string ProductName,
-    string Author, int Rating, string Comment, DateTime CreatedAt);
 
 // ── Service ──────────────────────────────────────────────────────────────────
 
