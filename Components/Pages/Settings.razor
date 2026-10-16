@@ -2,87 +2,23 @@
 @inject AuthService Auth
 @inject NavigationManager Nav
 
-<PageTitle>Settings · CueVault</PageTitle>
+<PageTitle>My account · CueVault</PageTitle>
 
-<div class="max-w-[600px] mb-8">
-    <h1>Settings</h1>
-    <p class="text-[#8faa7e]">Manage your account and store preferences.</p>
-</div>
+<div class="page-container account-page">
+    <section class="account-heading"><span class="eyebrow">THE PLAYER’S CORNER</span><h1>My <em>account.</em></h1><p>Your details, your gear, your game.</p></section>
 
-<div class="max-w-[600px] grid gap-6">
-
-    @* Profile section *@
-    <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.5rem]">
-        <h2 class="text-xl font-semibold mb-4">Profile Information</h2>
-        <EditForm Model="model" OnValidSubmit="SaveProfileAsync" FormName="settings">
-            <DataAnnotationsValidator />
-
-            @if (message is not null)
-            {
-                <div class="mb-4 p-3 rounded-lg @(isError ? "bg-[#e07060]/10 border border-[#e07060]/40 text-[#f0b0a0]" : "bg-[#a3d977]/10 border border-[#a3d977]/40 text-[#a3d977]")">
-                    @message
-                </div>
-            }
-
-            <div class="grid gap-4">
-                <label class="grid gap-1 font-semibold text-sm">
-                    <span>Username</span>
-                    <InputText @bind-Value="model.Username" class="@InputCss" />
-                    <ValidationMessage For="() => model.Username" class="text-[#e07060] text-[.82rem] font-normal" />
-                </label>
-                <label class="grid gap-1 font-semibold text-sm">
-                    <span>Email</span>
-                    <InputText @bind-Value="model.Email" class="@InputCss" />
-                    <ValidationMessage For="() => model.Email" class="text-[#e07060] text-[.82rem] font-normal" />
-                </label>
-                <div class="pt-2">
-                    <button class="inline-flex items-center justify-center gap-[.4rem] p-[.6rem_1.05rem] rounded-[10px] font-semibold bg-[#a3d977] text-[#0d1a05] hover:brightness-[1.08] disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled="@busy">
-                        @(busy ? "Saving…" : "Save changes")
-                    </button>
-                </div>
-            </div>
-        </EditForm>
-    </section>
-
-    @* Preferences section *@
-    <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.5rem]">
-        <h2 class="text-xl font-semibold mb-4">Preferences</h2>
-        <div class="grid gap-6">
-            <label class="flex items-center justify-between cursor-pointer">
-                <div>
-                    <div class="font-semibold text-sm text-[#edf2e8]">Order Notifications</div>
-                    <div class="text-sm text-[#8faa7e]">Get notified when new orders arrive.</div>
-                </div>
-                <div class="relative">
-                    <input type="checkbox" @bind="orderNotifications" class="peer sr-only" />
-                    <div class="w-11 h-6 bg-[#2a3823] rounded-[20px] peer peer-checked:bg-[#a3d977] transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#edf2e8] after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:bg-[#0d1a05]"></div>
-                </div>
-            </label>
-            <label class="flex items-center justify-between cursor-pointer">
-                <div>
-                    <div class="font-semibold text-sm text-[#edf2e8]">Low Stock Alerts</div>
-                    <div class="text-sm text-[#8faa7e]">Warn when products drop below 5 units.</div>
-                </div>
-                <div class="relative">
-                    <input type="checkbox" @bind="lowStockAlerts" class="peer sr-only" />
-                    <div class="w-11 h-6 bg-[#2a3823] rounded-[20px] peer peer-checked:bg-[#a3d977] transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#edf2e8] after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:bg-[#0d1a05]"></div>
-                </div>
-            </label>
-        </div>
-    </section>
-
-    @* Danger zone *@
-    <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.5rem]">
-        <h2 class="text-xl font-semibold mb-4 text-[#e07060]">Danger Zone</h2>
-        <p class="text-[#8faa7e] text-sm mb-4">Once you delete your account there is no going back. Please be certain.</p>
-        <button class="px-4 py-2 border border-[#e07060] text-[#e07060] font-semibold rounded-[10px] hover:bg-[#e07060]/10 transition-colors"
-                @onclick="DeleteAccount">Delete Account</button>
-    </section>
+    @if (Auth.Current is null)
+    {
+        <section class="account-guest"><div class="account-guest-art" aria-hidden="true"><span>8</span></div><div><span class="eyebrow">GOOD TO HAVE YOU HERE</span><h2>Your CueVault account.</h2><p>Sign in to keep your player profile up to date. You can shop and track an order without creating an account, too.</p><div class="account-actions"><a class="button button-dark" href="/login">Sign in <span aria-hidden="true">→</span></a><a class="button button-outline" href="/register">Create an account</a></div><a class="account-track-link" href="/orders">Just tracking an order? Start here →</a></div></section>
+    }
+    else
+    {
+        <div class="account-layout"><aside class="account-sidebar"><div class="account-avatar">@Auth.Current.Username[..1].ToUpperInvariant()</div><span class="eyebrow">CUEVAULT PLAYER</span><h2>@Auth.Current.Username</h2><a href="/orders">Track an order →</a><button @onclick="SignOut">Sign out</button></aside><section class="account-profile"><span class="eyebrow">YOUR DETAILS</span><h2>Profile information</h2><p>Keep your account details current. You can check out as a guest anytime.</p><EditForm Model="model" OnValidSubmit="SaveProfileAsync" FormName="settings" class="account-form"><DataAnnotationsValidator />@if (message is not null) { <div class="account-message @(isError ? "is-error" : "")" role="status">@message</div> }<label><span>Username</span><InputText @bind-Value="model.Username" autocomplete="username" /></label><ValidationMessage For="() => model.Username" /><label><span>Email address</span><InputText @bind-Value="model.Email" type="email" autocomplete="email" /></label><ValidationMessage For="() => model.Email" /><button class="button button-dark" disabled="@busy">@(busy ? "Saving…" : "Save changes")</button></EditForm></section></div>
+    }
 </div>
 
 @code {
-    class ProfileModel
+    sealed class ProfileModel
     {
         [Required(ErrorMessage = "Username is required.")]
         [StringLength(24, MinimumLength = 3)]
@@ -96,20 +32,12 @@
 
     readonly ProfileModel model = new();
     bool busy;
-    string? message;
     bool isError;
-    bool orderNotifications = true;
-    bool lowStockAlerts = true;
-
-    const string InputCss = "w-full p-[.7rem_.85rem] bg-[#0c0f0a] border border-[#2a3823] rounded-[10px] text-[#edf2e8] font-normal focus:outline-none focus:border-[#a3d977]";
+    string? message;
 
     protected override void OnInitialized()
     {
-        if (Auth.Current is not null)
-        {
-            model.Username = Auth.Current.Username;
-            model.Email    = Auth.Current.Email;
-        }
+        if (Auth.Current is not null) { model.Username = Auth.Current.Username; model.Email = Auth.Current.Email; }
     }
 
     async Task SaveProfileAsync()
@@ -117,14 +45,8 @@
         if (busy) return;
         busy = true; message = null;
         var (ok, err) = await Auth.UpdateProfileAsync(model.Username.Trim(), model.Email.Trim());
-        busy = false;
-        isError = !ok;
-        message = ok ? "Profile updated successfully." : err;
+        busy = false; isError = !ok; message = ok ? "Your account details are updated." : err;
     }
 
-    void DeleteAccount()
-    {
-        Auth.SignOut();
-        Nav.NavigateTo("/login", forceLoad: true);
-    }
+    void SignOut() { Auth.SignOut(); Nav.NavigateTo("/"); }
 }

@@ -1,89 +1,87 @@
 @inherits LayoutComponentBase
+@implements IDisposable
 @inject AuthService Auth
+@inject CartService Cart
 @inject NavigationManager Nav
-@inject UiState Ui
 
-@if (Auth.IsAuthenticated)
-{
-    <div class="grid grid-cols-[230px_1fr] min-h-screen">
+<div class="store-shell">
+    <div class="announcement-bar">
+        <span>THE PLAYER'S SHOP</span>
+        <span>Free shipping on orders over $75 <span aria-hidden="true">✦</span> Built for the love of the game</span>
+        <a href="/orders">Track your order</a>
+    </div>
 
-        @* Sidebar *@
-        <nav class="bg-[#080b07] border-r border-[#2a3823] p-[1.4rem_1rem] flex flex-col gap-[1.6rem] sticky top-0 h-screen"
-             aria-label="Main">
-
-            @* Brand *@
-            <a class="flex items-center gap-[.6rem] font-bold text-[1.15rem] text-[#edf2e8] tracking-[-.02em] hover:no-underline" href="/">
-                <span class="text-[1.4rem]">🎱</span> CueVault
+    <header class="store-header">
+        <div class="store-header-main page-container">
+            <a class="brand-lockup" href="/" aria-label="CueVault home">
+                <span class="brand-mark" aria-hidden="true"><span>8</span></span>
+                <span class="brand-name">cuevault<span>.</span><small>THE PLAYER'S SHOP</small></span>
             </a>
 
-            @* Nav links *@
-            <div class="grid gap-[2px]">
-                <NavLink class="group flex items-center gap-[.7rem] p-[.55rem_.75rem] rounded-[8px] text-[#8faa7e] font-medium hover:bg-[#1c2518] hover:text-[#edf2e8] hover:no-underline [&.active]:bg-[#243020] [&.active]:text-[#edf2e8]"
-                         href="/" Match="NavLinkMatch.All">
-                    <span class="w-[1.3rem] text-center text-[.9rem] group-[.active]:text-[#a3d977]">⌂</span>Dashboard
-                </NavLink>
-                <NavLink class="group flex items-center gap-[.7rem] p-[.55rem_.75rem] rounded-[8px] text-[#8faa7e] font-medium hover:bg-[#1c2518] hover:text-[#edf2e8] hover:no-underline [&.active]:bg-[#243020] [&.active]:text-[#edf2e8]"
-                         href="/products">
-                    <span class="w-[1.3rem] text-center text-[.9rem] group-[.active]:text-[#a3d977]">◈</span>Products
-                </NavLink>
-                <NavLink class="group flex items-center gap-[.7rem] p-[.55rem_.75rem] rounded-[8px] text-[#8faa7e] font-medium hover:bg-[#1c2518] hover:text-[#edf2e8] hover:no-underline [&.active]:bg-[#243020] [&.active]:text-[#edf2e8]"
-                         href="/orders">
-                    <span class="w-[1.3rem] text-center text-[.9rem] group-[.active]:text-[#a3d977]">≡</span>Orders
-                </NavLink>
-                <NavLink class="group flex items-center gap-[.7rem] p-[.55rem_.75rem] rounded-[8px] text-[#8faa7e] font-medium hover:bg-[#1c2518] hover:text-[#edf2e8] hover:no-underline [&.active]:bg-[#243020] [&.active]:text-[#edf2e8]"
-                         href="/reviews">
-                    <span class="w-[1.3rem] text-center text-[.9rem] group-[.active]:text-[#a3d977]">★</span>Reviews
-                </NavLink>
-                <NavLink class="group flex items-center gap-[.7rem] p-[.55rem_.75rem] rounded-[8px] text-[#8faa7e] font-medium hover:bg-[#1c2518] hover:text-[#edf2e8] hover:no-underline [&.active]:bg-[#243020] [&.active]:text-[#edf2e8]"
-                         href="/settings">
-                    <span class="w-[1.3rem] text-center text-[.9rem] group-[.active]:text-[#a3d977]">⚙</span>Settings
-                </NavLink>
-            </div>
+            <form class="store-search" @onsubmit="Search" @onsubmit:preventDefault>
+                <span class="search-icon" aria-hidden="true">⌕</span>
+                <input aria-label="Search the shop" placeholder="Find your next favorite…" @bind="searchQuery" />
+                <button type="submit" aria-label="Search">Search</button>
+            </form>
 
-            @* User footer *@
-            <div class="mt-auto grid grid-cols-[auto_1fr] gap-[.1rem_.7rem] items-center pt-[1rem] border-t border-[#2a3823]">
-                <span class="row-span-2 w-[34px] h-[34px] rounded-full bg-[#1c2518] grid place-items-center font-bold text-[#a3d977]">
-                    @(Auth.Current!.Username[..1].ToUpper())
-                </span>
-                <span class="font-semibold overflow-hidden text-ellipsis">@Auth.Current.Username</span>
-                <button class="text-left text-[#8faa7e] p-0 text-[.875rem] hover:underline" @onclick="SignOut">
-                    Sign out
-                </button>
+            <div class="header-actions">
+                <a class="account-action" href="@(Auth.IsAuthenticated ? "/settings" : "/login")">
+                    <span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5" /><path d="M5 21v-1.5a7 7 0 0 1 14 0V21z" /></svg></span>
+                    <span><small>@(Auth.IsAuthenticated ? "WELCOME BACK" : "YOUR ACCOUNT")</small><b>@(Auth.Current?.Username ?? "Sign in")</b></span>
+                </a>
+                <a class="cart-action" href="/cart" aria-label="Shopping bag, @Cart.TotalCount items">
+                    <span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 8h14l1 13H4L5 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg></span>
+                    <span class="cart-count">@Cart.TotalCount</span>
+                    <span><small>YOUR BAG</small><b>$@Cart.Subtotal.ToString("0.00")</b></span>
+                </a>
             </div>
-        </nav>
-
-        @* Main area *@
-        <div class="min-w-0">
-            <header class="flex gap-[1rem] items-center p-[1rem_2rem] border-b border-[#2a3823] sticky top-0 bg-[rgba(12,15,10,.92)] backdrop-blur-[8px] z-[5]">
-                <button class="flex-1 max-w-[520px] flex justify-between items-center p-[.6rem_.9rem] bg-[#121810] border border-[#2a3823] rounded-[10px] text-[#6a8a5a] text-left hover:border-[#3d5030]"
-                        @onclick='() => Ui.Show("Search")'>
-                    <span>Search products, orders…</span>
-                    <kbd class="font-mono text-[.75rem] p-[.15rem_.45rem] border border-[#2a3823] rounded-[5px] text-[#8faa7e]">Ctrl K</kbd>
-                </button>
-                <button class="ml-auto inline-flex items-center justify-center gap-[.4rem] p-[.6rem_1.05rem] rounded-[10px] font-semibold border border-transparent transition-[filter,background] duration-150 bg-[#a3d977] text-[#0d1a05] hover:brightness-[1.08] hover:no-underline"
-                        @onclick='() => Ui.Show("Add product")'>
-                    + Add product
-                </button>
-            </header>
-            <div class="p-[2rem] max-w-[1180px]">@Body</div>
         </div>
 
-    </div>
-}
+        <nav class="store-nav" aria-label="Shop navigation">
+            <div class="page-container store-nav-inner">
+                <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
+                <NavLink href="/products">Shop all</NavLink>
+                <a href="/products?category=Cues">Cues</a>
+                <a href="/products?category=Balls">Balls &amp; racks</a>
+                <a href="/products?category=Accessories">Accessories</a>
+                <NavLink href="/reviews">Customer stories</NavLink>
+                <a class="nav-deals" href="/products">Shop the collection <span aria-hidden="true">→</span></a>
+            </div>
+        </nav>
+    </header>
 
-<UnderDevModal />
-<AddProductModal />
-<SearchModal />
+    <main class="store-main">
+        @Body
+    </main>
+
+    <footer class="store-footer">
+        <div class="page-container footer-grid">
+            <div class="footer-brand">
+                <a class="brand-lockup" href="/">
+                    <span class="brand-mark" aria-hidden="true"><span>8</span></span>
+                    <span class="brand-name">cuevault<span>.</span><small>THE PLAYER'S SHOP</small></span>
+                </a>
+                <p>Good gear. Better games.<br />Everything you need for your next runout.</p>
+            </div>
+            <div><h3>Explore</h3><a href="/products">Shop all</a><a href="/products?category=Cues">Cues</a><a href="/products?category=Balls">Balls &amp; racks</a><a href="/products?category=Accessories">Accessories</a></div>
+            <div><h3>Here to help</h3><a href="/orders">Track an order</a><a href="/reviews">Customer reviews</a><a href="/settings">My account</a><a href="mailto:hello@cuevault.shop">Contact us</a></div>
+            <div class="footer-note"><span class="footer-kicker">MADE FOR THE MOMENT</span><p>From the first break to the final 8-ball, we've got your table covered.</p><a href="/products">Find your gear <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <div class="page-container footer-bottom"><span>© @DateTime.Now.Year CueVault. Play your game.</span><span>Secure checkout&nbsp; · &nbsp;Expert-picked gear&nbsp; · &nbsp;Good games guaranteed</span></div>
+    </footer>
+</div>
 
 @code {
-    protected override void OnInitialized()
+    string searchQuery = "";
+
+    protected override void OnInitialized() => Cart.Changed += Refresh;
+
+    void Search()
     {
-        if (!Auth.IsAuthenticated) Nav.NavigateTo("/login");
+        var query = Uri.EscapeDataString(searchQuery.Trim());
+        Nav.NavigateTo(string.IsNullOrEmpty(query) ? "/products" : $"/products?q={query}");
     }
 
-    void SignOut()
-    {
-        Auth.SignOut();
-        Nav.NavigateTo("/login");
-    }
+    void Refresh() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Cart.Changed -= Refresh;
 }

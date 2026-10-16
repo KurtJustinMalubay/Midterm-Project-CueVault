@@ -1,79 +1,50 @@
 @page "/orders"
 @inject StoreService Store
+@inject NavigationManager Nav
 @implements IDisposable
 
-<PageTitle>Orders · CueVault</PageTitle>
+<PageTitle>Track your order · CueVault</PageTitle>
 
-<div class="mb-[1.6rem]">
-    <h1>Orders</h1>
-    <p class="text-[#8faa7e]">Track and manage customer orders.</p>
-</div>
+<div class="page-container track-page">
+    <section class="track-intro"><span class="eyebrow">WE’LL GET YOU BACK TO THE TABLE</span><h1>Track your <em>order.</em></h1><p>Enter the email you used at checkout and we’ll find your recent CueVault orders.</p>
+        <form class="track-search" @onsubmit="FindOrders" @onsubmit:preventDefault><label class="sr-only" for="order-email">Email used at checkout</label><input id="order-email" type="email" required @bind="email" placeholder="you@example.com" /><button class="button button-dark" type="submit">Find my order <span aria-hidden="true">→</span></button></form>
+    </section>
 
-@* Filter bar *@
-<div class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.2rem_1.3rem]">
-    <div class="flex flex-wrap gap-[.5rem] mb-[.9rem]">
-        @foreach (var f in Filters)
-        {
-            var active = activeFilter == f;
-            <button class="px-[.8rem] py-[.3rem] border rounded-full text-[.85rem] transition-colors @(active ? "border-[#a3d977] bg-[#a3d977] text-[#0d1a05] font-semibold" : "border-[#2a3823] text-[#8faa7e] hover:text-[#edf2e8] hover:border-[#3d5030]")"
-                    @onclick="() => activeFilter = f">@f</button>
-        }
-    </div>
-
-    @* Orders list *@
-    @{
-        var orders = FilteredOrders.ToList();
-    }
-    @if (!orders.Any())
+    @if (hasSearched)
     {
-        <p class="text-[#8faa7e] text-center py-8">No orders match this filter.</p>
-    }
-    else
-    {
-        <ul class="grid gap-[2px]">
-            @foreach (var o in orders)
+        <section class="tracked-orders" aria-live="polite">
+            @if (MatchingOrders.Any())
             {
-                <li class="grid grid-cols-[1fr_auto_auto_auto] gap-[1rem] items-center p-[.8rem_.5rem] rounded-[8px] hover:bg-[#1c2518]">
-                    <span class="grid min-w-0">
-                        <span class="font-semibold whitespace-nowrap overflow-hidden text-ellipsis">@o.CustomerName</span>
-                        <span class="text-[#8faa7e] text-[.82rem]">@o.ProductName · qty @o.Quantity · @o.CreatedAt.ToString("MMM dd")</span>
-                    </span>
-                    <span class="text-[#d4a847] font-semibold">$@o.Total.ToString("0.00")</span>
-                    <span class="@StatusClass(o.Status) font-mono text-[.82rem] font-semibold min-w-[6rem] text-right">@o.Status</span>
-                    @* Status update dropdown *@
-                    <select class="bg-[#1c2518] border border-[#2a3823] text-[#8faa7e] rounded-[6px] text-[.8rem] px-[.4rem] py-[.2rem] focus:outline-none focus:border-[#a3d977]"
-                            value="@o.Status"
-                            @onchange="e => UpdateStatus(o.Id, e.Value?.ToString() ?? o.Status)">
-                        <option value="Processing">Processing</option>
-                        <option value="Shipped">Shipped</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Cancelled">Cancelled</option>
-                    </select>
-                </li>
+                <div class="section-heading"><div><span class="eyebrow">GOOD NEWS, WE FOUND THEM</span><h2>Your CueVault orders</h2></div><span class="order-result-count">@MatchingOrders.Count() order(s)</span></div>
+                @foreach (var order in MatchingOrders)
+                {
+                    <article class="tracked-order-card"><div class="tracked-order-top"><span>ORDER PLACED <b>@order.CreatedAt.ToString("MMM d, yyyy")</b></span><span class="order-status status-@order.Status.ToLowerInvariant()">@order.Status</span></div><div class="tracked-order-product"><div class="cart-item-art @ArtClass(order.ProductId)" aria-hidden="true"><span>✳</span></div><div><b>@order.ProductName</b><small>Quantity: @order.Quantity · Order #@order.Id[..8].ToUpperInvariant()</small></div><strong>$@order.Total.ToString("0.00")</strong></div><div class="order-progress"><span class="progress-step is-done"><i>✓</i> Order placed</span><span class="progress-step @(order.Status is "Shipped" or "Delivered" ? "is-done" : "")"><i>2</i> On its way</span><span class="progress-step @(order.Status == "Delivered" ? "is-done" : "")"><i>3</i> Delivered</span></div></article>
+                }
             }
-        </ul>
+            else
+            {
+                <div class="order-not-found"><span>⌕</span><h2>No orders found for that email.</h2><p>Double-check the address from checkout, or <a href="mailto:hello@cuevault.shop">get in touch</a> and we’ll help you track it down.</p></div>
+            }
+        </section>
     }
+
+    <div class="track-help"><span>✳</span><p><b>Something not quite right?</b><br />Our player support crew is happy to help. <a href="mailto:hello@cuevault.shop">Send us a note →</a></p></div>
 </div>
 
 @code {
-    static readonly string[] Filters = ["All", "Processing", "Shipped", "Delivered", "Cancelled"];
-    string activeFilter = "All";
+    [SupplyParameterFromQuery(Name = "email")] public string? EmailQuery { get; set; }
+    string email = "";
+    bool hasSearched;
 
-    IEnumerable<OrderEntry> FilteredOrders => activeFilter == "All"
-        ? Store.GetAllOrders()
-        : Store.GetAllOrders().Where(o => o.Status == activeFilter);
+    IEnumerable<OrderEntry> MatchingOrders => string.IsNullOrWhiteSpace(email) ? [] : Store.GetAllOrders().Where(order => order.CustomerEmail.Equals(email.Trim(), StringComparison.OrdinalIgnoreCase));
 
-    void UpdateStatus(string id, string status) => Store.UpdateOrderStatus(id, status);
-
-    string StatusClass(string status) => status switch
+    protected override void OnParametersSet()
     {
-        "Delivered"  => "text-[#a3d977]",
-        "Shipped"    => "text-[#7ab8e8]",
-        "Processing" => "text-[#d4a847]",
-        "Cancelled"  => "text-[#e07060]",
-        _            => "text-[#8faa7e]"
-    };
+        if (!string.IsNullOrWhiteSpace(EmailQuery)) { email = EmailQuery; hasSearched = true; }
+    }
 
+    void FindOrders() => hasSearched = true;
+    static string ArtClass(string productId) => "art-accessory";
     protected override void OnInitialized() => Store.OnOrderChanged += Refresh;
     void Refresh() => InvokeAsync(StateHasChanged);
     public void Dispose() => Store.OnOrderChanged -= Refresh;

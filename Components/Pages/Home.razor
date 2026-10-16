@@ -1,173 +1,97 @@
 @page "/"
-@inject AuthService Auth
 @inject StoreService Store
-@inject UiState Ui
+@inject CartService Cart
 @inject NavigationManager Nav
 @implements IDisposable
 
-<PageTitle>Dashboard · CueVault</PageTitle>
+<PageTitle>CueVault — Gear for the love of the game</PageTitle>
 
-@* Greeting *@
-<section class="mb-[1.6rem]">
-    <h1>@Greeting, @Auth.Current?.Username</h1>
-    <p class="text-[#8faa7e]">Here's your store at a glance. Add products or check recent orders below.</p>
-</section>
-
-@* Stats bar *@
-<section class="grid grid-cols-4 border border-[#2a3823] rounded-[10px] bg-[#121810] mb-[1.6rem]" aria-label="Store stats">
-    <div class="p-[1rem_1.3rem] grid gap-[.1rem]">
-        <strong class="text-[1.5rem] tracking-[-.02em]">@Store.TotalProducts</strong>
-        <span class="text-[#8faa7e] text-[.85rem]">products listed</span>
-    </div>
-    <div class="p-[1rem_1.3rem] grid gap-[.1rem] border-l border-[#2a3823]">
-        <strong class="text-[1.5rem] tracking-[-.02em]">@Store.PendingOrders</strong>
-        <span class="text-[#8faa7e] text-[.85rem]">pending orders</span>
-    </div>
-    <div class="p-[1rem_1.3rem] grid gap-[.1rem] border-l border-[#2a3823]">
-        <strong class="text-[1.5rem] tracking-[-.02em]">$@Store.TotalRevenue.ToString("0.00")</strong>
-        <span class="text-[#8faa7e] text-[.85rem]">total revenue</span>
-    </div>
-    <div class="p-[1rem_1.3rem] grid gap-[.1rem] border-l border-[#2a3823]">
-        <strong class="text-[1.5rem] tracking-[-.02em]">@Store.AverageRating.ToString("0.0") ★</strong>
-        <span class="text-[#8faa7e] text-[.85rem]">avg rating</span>
-    </div>
-</section>
-
-@* Two-column content *@
-<div class="grid grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-[1.4rem] items-start">
-
-    @* Left column *@
-    <div class="grid gap-[1.4rem]">
-
-        @* Recent orders *@
-        <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.2rem_1.3rem]">
-            <div class="flex justify-between items-baseline">
-                <h2>Recent orders</h2>
-                <button class="text-[#a3d977] text-[.875rem] hover:underline"
-                        @onclick='() => Nav.NavigateTo("/orders")'>View all</button>
+<div class="page-container home-page">
+    <section class="hero-panel">
+        <div class="hero-copy">
+            <span class="eyebrow"><span></span> FOR THE LOVE OF THE GAME</span>
+            <h1>Make every<br />shot <em>count.</em></h1>
+            <p>Thoughtfully picked cues, table essentials and little upgrades that make a big difference at the table.</p>
+            <div class="hero-buttons">
+                <a class="button button-dark" href="/products">Shop the collection <span aria-hidden="true">↗</span></a>
+                <a class="text-link" href="/reviews">Why players choose us <span aria-hidden="true">→</span></a>
             </div>
-            <ul class="grid gap-[2px] m-[0_-.5rem]">
-                @foreach (var o in Store.GetRecentOrders(5))
-                {
-                    <li>
-                        <div class="grid grid-cols-[1fr_auto_auto] gap-[.9rem] items-center w-full p-[.7rem_.5rem] rounded-[8px] hover:bg-[#1c2518]">
-                            <span class="grid min-w-0">
-                                <span class="font-semibold whitespace-nowrap overflow-hidden text-ellipsis">@o.CustomerName</span>
-                                <span class="text-[#8faa7e] text-[.82rem]">@o.ProductName · @o.CreatedAt.ToString("MMM dd")</span>
-                            </span>
-                            <span class="text-[#d4a847] font-semibold text-[.9rem]">$@o.Total.ToString("0.00")</span>
-                            <span class="@StatusClass(o.Status) text-[.78rem] font-mono font-semibold">@o.Status</span>
-                        </div>
-                    </li>
-                }
-            </ul>
-        </section>
+            <div class="hero-proof"><span class="proof-stars">★★★★★</span><b>4.8/5</b><span>from players like you</span></div>
+        </div>
+        <div class="hero-art" aria-label="Pool balls set on a green felt table" role="img">
+            <div class="hero-art-ring"></div>
+            <div class="hero-table-line"></div>
+            <div class="hero-ball hero-ball-eight"><span>8</span></div>
+            <div class="hero-ball hero-ball-gold"><span>3</span></div>
+            <div class="hero-ball hero-ball-white"><span></span></div>
+            <div class="hero-cue"></div>
+            <div class="hero-art-caption"><span>01 / 03</span><b>THE PERFECT BREAK</b></div>
+            <div class="hero-stamp"><span>PLAY</span><b>YOUR<br />GAME</b></div>
+        </div>
+        <div class="hero-bottomline"><span>CURATED FOR PLAYERS, BY PLAYERS</span><span>EST. FOR THE LOVE OF THE GAME <b>✳</b></span></div>
+    </section>
 
-        @* Low stock alert *@
-        <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.2rem_1.3rem]">
-            <div class="flex justify-between items-baseline">
-                <h2>Low stock alert</h2>
-                <button class="text-[#a3d977] text-[.875rem] hover:underline"
-                        @onclick='() => Nav.NavigateTo("/products")'>Manage</button>
-            </div>
-            @{
-                var lowStock = Store.GetLowStock().ToList();
-            }
-            @if (lowStock.Count == 0)
+    <section class="benefit-strip" aria-label="Shopping benefits">
+        <div><span class="benefit-icon">✳</span><span><b>Player-picked gear</b><small>Tested and loved at the table</small></span></div>
+        <div><span class="benefit-icon">↗</span><span><b>Free shipping $75+</b><small>More gear, fewer extra fees</small></span></div>
+        <div><span class="benefit-icon">◎</span><span><b>Here for your game</b><small>Real help from real players</small></span></div>
+    </section>
+
+    <section class="section-block category-section">
+        <div class="section-heading"><div><span class="eyebrow">FIND YOUR EDGE</span><h2>Shop by category</h2></div><a class="text-link" href="/products">See everything <span aria-hidden="true">→</span></a></div>
+        <div class="category-grid">
+            <a class="category-tile category-cues" href="/products?category=Cues"><span class="category-number">01</span><span class="category-visual cue-visual" aria-hidden="true">╱</span><span class="category-title">Cues</span><span class="category-subtitle">Find your feel <span aria-hidden="true">↗</span></span></a>
+            <a class="category-tile category-balls" href="/products?category=Balls"><span class="category-number">02</span><span class="category-visual balls-visual" aria-hidden="true"><i></i><i></i><i></i></span><span class="category-title">Balls &amp; racks</span><span class="category-subtitle">Set up for a good one <span aria-hidden="true">↗</span></span></a>
+            <a class="category-tile category-accessories" href="/products?category=Accessories"><span class="category-number">03</span><span class="category-visual accessory-visual" aria-hidden="true">✳</span><span class="category-title">Accessories</span><span class="category-subtitle">The little things matter <span aria-hidden="true">↗</span></span></a>
+        </div>
+    </section>
+
+    <section class="section-block featured-section">
+        <div class="section-heading"><div><span class="eyebrow">THE PLAYER FAVORITES</span><h2>Good gear, great games.</h2></div><a class="text-link" href="/products">Shop all gear <span aria-hidden="true">→</span></a></div>
+        <div class="product-grid">
+            @foreach (var product in Store.GetAllProducts().Take(4))
             {
-                <p class="text-[#8faa7e] text-[.9rem] m-0">All products are sufficiently stocked.</p>
+                <article class="product-card">
+                    <a class="product-art @ArtClass(product)" href="/products" aria-label="Browse @product.Name">
+                        <span class="product-badge">PLAYER PICK</span>
+                        <span class="product-art-symbol" aria-hidden="true">@ArtSymbol(product)</span>
+                        <span class="product-art-caption">CUEVAULT · @product.Category.ToUpperInvariant()</span>
+                        <span class="quick-view">View details <b>↗</b></span>
+                    </a>
+                    <div class="product-info">
+                        <span class="product-category">@product.Category.ToUpperInvariant()</span>
+                        <a class="product-name" href="/products">@product.Name</a>
+                        <div class="product-rating"><span>★★★★★</span><small>(@Store.GetReviewsFor(product.Id).Count() reviews)</small></div>
+                        <div class="product-buy-row"><b class="product-price">$@product.Price.ToString("0.00")</b><button class="add-button" disabled="@(!CanAdd(product))" aria-label="Add @product.Name to cart" @onclick="() => AddToCart(product)">+</button></div>
+                    </div>
+                </article>
             }
-            else
+        </div>
+    </section>
+
+    <section class="story-banner">
+        <div class="story-art" aria-hidden="true"><span class="story-ball"><span>8</span></span><span class="story-cue"></span><span class="story-spark">✳</span></div>
+        <div class="story-copy"><span class="eyebrow">MORE THAN JUST GEAR</span><h2>It’s not just the shot.<br /><em>It’s the feeling.</em></h2><p>The quiet before the break. The click of a clean hit. That one table you always come back to. We’re here for all of it.</p><a class="button button-light" href="/reviews">Hear it from the players <span aria-hidden="true">→</span></a></div>
+        <span class="story-side-note">CUEVAULT FIELD NOTES&nbsp; / &nbsp;VOL. 01</span>
+    </section>
+
+    <section class="section-block review-section">
+        <div class="section-heading"><div><span class="eyebrow">DON’T JUST TAKE OUR WORD FOR IT</span><h2>Good words from good players.</h2></div><a class="text-link" href="/reviews">Read all reviews <span aria-hidden="true">→</span></a></div>
+        <div class="review-grid">
+            @foreach (var review in Store.GetAllReviews().Take(3))
             {
-                <ul class="grid gap-[2px] m-[0_-.5rem]">
-                    @foreach (var p in lowStock)
-                    {
-                        <li class="grid grid-cols-[1fr_auto] gap-[.9rem] items-center p-[.6rem_.5rem] rounded-[8px] hover:bg-[#1c2518]">
-                            <span class="font-semibold text-[.9rem]">@p.Name</span>
-                            <span class="text-[#e07060] font-mono text-[.82rem] font-semibold">@p.Stock left</span>
-                        </li>
-                    }
-                </ul>
+                <article class="review-card"><div class="review-stars">@(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))</div><blockquote>“@review.Comment”</blockquote><div class="review-byline"><span class="review-avatar">@review.Author[..1]</span><span><b>@review.Author</b><small>Verified player · @review.ProductName</small></span><span class="verified-mark">✓</span></div></article>
             }
-        </section>
-    </div>
-
-    @* Right column *@
-    <div class="grid gap-[1.4rem]">
-
-        @* Category breakdown *@
-        <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.2rem_1.3rem]">
-            <h2>Categories</h2>
-            <div class="flex flex-wrap gap-[.5rem]">
-                @foreach (var cat in Store.GetAllCategories())
-                {
-                    var count = Store.GetAllProducts().Count(p => p.Category == cat);
-                    <button class="p-[.3rem_.8rem] border border-[#2a3823] rounded-[999px] text-[#8faa7e] text-[.85rem] hover:text-[#edf2e8] hover:border-[#3d5030]"
-                            @onclick='() => Nav.NavigateTo("/products")'>
-                        @cat <span class="text-[#a3d977] font-semibold">@count</span>
-                    </button>
-                }
-            </div>
-        </section>
-
-        @* Tags *@
-        <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.2rem_1.3rem]">
-            <h2>Popular tags</h2>
-            <div class="flex flex-wrap gap-[.5rem]">
-                @foreach (var t in Store.GetAllTags())
-                {
-                    <button class="p-[.3rem_.8rem] border border-[#2a3823] rounded-[999px] text-[#8faa7e] text-[.85rem] hover:text-[#edf2e8] hover:border-[#3d5030]"
-                            @onclick='() => Nav.NavigateTo("/products")'>
-                        #@t
-                    </button>
-                }
-            </div>
-        </section>
-
-        @* Quick actions *@
-        <section class="bg-[#121810] border border-[#2a3823] rounded-[10px] p-[1.2rem_1.3rem]">
-            <h2>Quick actions</h2>
-            <div class="grid gap-[.5rem]">
-                <button class="w-full text-left p-[.7rem_.9rem] bg-[#1c2518] border border-[#2a3823] rounded-[8px] text-[.9rem] hover:border-[#a3d977] transition-colors"
-                        @onclick='() => Ui.Show("Add product")'>
-                    ➕ Add new product
-                </button>
-                <button class="w-full text-left p-[.7rem_.9rem] bg-[#1c2518] border border-[#2a3823] rounded-[8px] text-[.9rem] hover:border-[#a3d977] transition-colors"
-                        @onclick='() => Nav.NavigateTo("/orders")'>
-                    📦 View all orders
-                </button>
-                <button class="w-full text-left p-[.7rem_.9rem] bg-[#1c2518] border border-[#2a3823] rounded-[8px] text-[.9rem] hover:border-[#a3d977] transition-colors"
-                        @onclick='() => Nav.NavigateTo("/reviews")'>
-                    ⭐ Read customer reviews
-                </button>
-            </div>
-        </section>
-    </div>
+        </div>
+    </section>
 </div>
 
 @code {
-    static string Greeting => DateTime.Now.Hour switch { < 12 => "Good morning", < 18 => "Good afternoon", _ => "Good evening" };
-
-    string StatusClass(string status) => status switch
-    {
-        "Delivered"   => "text-[#a3d977]",
-        "Shipped"     => "text-[#7ab8e8]",
-        "Processing"  => "text-[#d4a847]",
-        "Cancelled"   => "text-[#e07060]",
-        _             => "text-[#8faa7e]"
-    };
-
-    protected override void OnInitialized()
-    {
-        Store.OnOrderChanged   += Refresh;
-        Store.OnProductChanged += Refresh;
-    }
-
+    protected override void OnInitialized() => Store.OnProductChanged += Refresh;
     void Refresh() => InvokeAsync(StateHasChanged);
-
-    public void Dispose()
-    {
-        Store.OnOrderChanged   -= Refresh;
-        Store.OnProductChanged -= Refresh;
-    }
+    bool CanAdd(ProductEntry product) => product.Stock > (Cart.Items.FirstOrDefault(item => item.ProductId == product.Id)?.Quantity ?? 0);
+    void AddToCart(ProductEntry product) { if (CanAdd(product)) Cart.Add(product.Id, product.Name, product.Price); }
+    static string ArtClass(ProductEntry product) => product.Category switch { "Cues" => "art-cue", "Balls" => "art-balls", _ => "art-accessory" };
+    static string ArtSymbol(ProductEntry product) => product.Category switch { "Cues" => "╱", "Balls" => "● ● ●", _ => "✳" };
+    public void Dispose() => Store.OnProductChanged -= Refresh;
 }
